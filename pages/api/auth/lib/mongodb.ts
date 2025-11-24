@@ -1,33 +1,64 @@
-// This approach is taken from https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
+// pages/api/auth/lib/mongodb.ts
 import { MongoClient } from "mongodb";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add your Mongo URI to .env.local");
-}
-
-const uri: string = process.env.MONGODB_URI;
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (process.env.NODE_ENV === "development") {
-  // In development mode, use a global variable so that the value
-  // is preserved across module reloads caused by HMR (Hot Module Replacement).
+async function getMongoClient() {
+  let uri: string;
 
+  // Use memory server for development/test
+  if (process.env.USE_MEMORY_SERVER === 'true') {
+    const { MongoMemoryServer } = require('mongodb-memory-server');
+    
+    let globalWithMemoryServer = global as typeof globalThis & {
+      _memoryServer?: any;
+    };
+
+    if (!globalWithMemoryServer._memoryServer) {
+      console.log('🧪 Starting MongoDB Memory Server for NextAuth...');
+      globalWithMemoryServer._memoryServer = await MongoMemoryServer.create({
+        instance: {
+          dbName: 'panamia_dev'
+        },
+        binary: {
+      version: '4.4.18'  // ADD THIS LINE
+    	}
+      });
+    }
+    
+    uri = globalWithMemoryServer._memoryServer.getUri();
+    console.log('✅ NextAuth using Memory Server');
+  } else {
+    // Use real MongoDB
+    if (!process.env.MONGODB_URI) {
+      throw new Error("Please add MONGODB_URI to .env.local or set USE_MEMORY_SERVER=true");
+    }
+    uri = process.env.MONGODB_URI;
+    console.log('✅ NextAuth using MongoDB Atlas/Remote');
+  }
+
+  return new MongoClient(uri);
+}
+
+if (process.env.NODE_ENV === "development") {
   let globalWithMongoClientPromise = global as typeof globalThis & {
-    _mongoClientPromise: Promise<MongoClient>;
+    _mongoClientPromise?: Promise<MongoClient>;
   };
 
   if (!globalWithMongoClientPromise._mongoClientPromise) {
-    client = new MongoClient(uri);
-    globalWithMongoClientPromise._mongoClientPromise = client.connect();
+    globalWithMongoClientPromise._mongoClientPromise = getMongoClient().then(c => {
+      client = c;
+      return client.connect();
+    });
   }
   clientPromise = globalWithMongoClientPromise._mongoClientPromise;
 } else {
-  // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri);
-  clientPromise = client.connect();
+  // Production mode
+  clientPromise = getMongoClient().then(c => {
+    client = c;
+    return client.connect();
+  });
 }
 
-// Export a module-scoped MongoClient promise. By doing this in a
-// separate module, the client can be shared across functions.
 export default clientPromise;
