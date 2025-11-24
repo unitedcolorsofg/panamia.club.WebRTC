@@ -41,7 +41,15 @@ function ExcelToJsonConverter() {
         const data = e.target.result;
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheetName = workbook.SheetNames[0];
+        if (!sheetName) {
+          console.error('No sheets found in workbook');
+          return;
+        }
         const worksheet = workbook.Sheets[sheetName];
+        if (!worksheet) {
+          console.error('Sheet not found');
+          return;
+        }
         const json = XLSX.utils.sheet_to_json(worksheet);
         setJsonData(JSON.stringify(json, null, 2));
         console.log(json);

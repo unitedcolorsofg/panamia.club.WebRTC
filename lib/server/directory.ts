@@ -221,4 +221,5 @@ export const getSearch = async ({
     }
     return { success: true, data: [] };
   }
+  return { success: false, data: [] };
 };

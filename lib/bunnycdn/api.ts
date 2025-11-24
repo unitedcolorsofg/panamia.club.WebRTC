@@ -40,6 +40,7 @@ export const uploadFile = async (fileName: string, file: any) => {
     const cdnPath = `https://${CDN_PATH}/${fileName}`;
     return cdnPath;
   }
+  return null;
 };
 
 export const deleteFile = async (fileName: string) => {

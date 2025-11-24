@@ -82,22 +82,16 @@ export const getAdminSearch = async ({
     }
     return { success: true, data: [] };
   }
+  return { success: false, data: [] };
 };
 
 export const getAdminDashboard = async () => {
   await dbConnect();
-  const profilesFilters = {
-    createdAt: { $gte: dateXdays(35) },
-  };
-  const profilesFields = {
-    name: 1,
-    slug: 1,
-    active: 1,
-    createdAt: 1,
-  };
-  const recentProfiles = await profile
-    .find(profilesFilters)
-    .sort({ $natural: -1 });
-  const allProfiles = await profile.find().count();
+  // TODO: Remove type assertion after upgrading to Mongoose v8 in Phase 5
+  const recentProfiles = await (profile as any)
+    .find({ createdAt: { $gte: dateXdays(35) } })
+    .sort({ createdAt: -1 })
+    .exec();
+  const allProfiles = await profile.countDocuments();
   return { recent: recentProfiles, all: allProfiles };
 };

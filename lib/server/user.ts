@@ -4,7 +4,8 @@ import { generateAffiliateCode } from '../standardized';
 
 export const getUser = async (email: string) => {
   await dbConnect();
-  return await user.findOne({ email: email });
+  // TODO: Remove type assertion after upgrading to Mongoose v8 in Phase 5
+  return await (user as any).findOne({ email: email });
 };
 
 export const uniqueAffiliateCode = async () => {
@@ -22,5 +23,6 @@ export const uniqueAffiliateCode = async () => {
 
 export const getUserByAffiliateCode = async (code: string) => {
   await dbConnect();
-  return await user.findOne({ 'affiliate.code': code });
+  // TODO: Remove type assertion after upgrading to Mongoose v8 in Phase 5
+  return await (user as any).findOne({ 'affiliate.code': code });
 };

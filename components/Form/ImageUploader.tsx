@@ -21,6 +21,11 @@ export default function FileUploader() {
 
     const file = fileInput.files[0];
 
+    if (!file) {
+      console.warn('no file selected');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
 
