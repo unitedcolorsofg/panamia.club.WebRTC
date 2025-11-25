@@ -26,13 +26,17 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
   const queryClient = new QueryClient();
   const session = await getServerSession(context.req, context.res, authOptions);
   const userLib = await import('@/lib/server/user');
-  const session_user = session
-    ? serialize(await userLib.getUser(session.user.email))
-    : null;
+  const session_user =
+    session && session.user && session.user.email
+      ? serialize(await userLib.getUser(session.user.email))
+      : null;
   const profileLib = await import('@/lib/server/profile');
   await queryClient.prefetchQuery({
     queryKey: profileQueryKey,
-    initialData: serialize(await profileLib.getProfile(session.user.email)),
+    initialData:
+      session && session.user && session.user.email
+        ? serialize(await profileLib.getProfile(session.user.email))
+        : undefined,
   });
   return {
     props: {

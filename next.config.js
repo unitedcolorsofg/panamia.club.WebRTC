@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   trailingSlash: true,
+
+  // Required for Mongoose 8.x compatibility with Next.js 14
+  experimental: {
+    esmExternals: 'loose',
+    serverComponentsExternalPackages: ['mongoose'],
+  },
 
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     config.module.rules.push({

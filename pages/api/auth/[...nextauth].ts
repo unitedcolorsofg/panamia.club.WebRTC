@@ -1,9 +1,9 @@
 // https://next-auth.js.org/providers/google
 
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
-import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
+import { MongoDBAdapter } from '@auth/mongodb-adapter';
 import { DefaultSession, User, TokenSet } from 'next-auth';
 // import { compare } from "bcrypt";
 // import CredentialsProvider from "next-auth/providers/credentials";
@@ -31,8 +31,8 @@ const mongoAdapterOptions = {
 //  }
 //}),
 
-export const authOptions = {
-  adapter: MongoDBAdapter(clientPromise, mongoAdapterOptions),
+export const authOptions: NextAuthOptions = {
+  adapter: MongoDBAdapter(clientPromise, mongoAdapterOptions) as any,
   providers: [
     EmailProvider({
       server: {
@@ -56,7 +56,6 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    // @ts-expect-error
     async session({ session, user, token }) {
       session.user.name = '';
       session.user.image = '';

@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 import EmailProvider from 'next-auth/providers/email';
 import clientPromise from './auth/lib/mongodb';
 import dbConnect from './auth/lib/connectdb';
-import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
+import { MongoDBAdapter } from '@auth/mongodb-adapter';
 import { compare } from 'bcrypt';
 import auth from './auth/lib/model/users';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -17,7 +17,7 @@ const options = {
 };
 
 export default NextAuth({
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise) as any,
   providers: [
     CredentialsProvider({
       id: 'credentials',

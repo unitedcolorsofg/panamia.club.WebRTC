@@ -26,7 +26,9 @@ export default async function handler(
   }
 
   dbConnect();
-  const userSession = await user.findOne({ email: session.user.email });
+  const userSession = session?.user?.email
+    ? await user.findOne({ email: session.user.email })
+    : null;
   if (!(userSession?.status?.role === 'admin')) {
     return res.status(401).json({ error: 'Not Authorized:admin' });
   }
