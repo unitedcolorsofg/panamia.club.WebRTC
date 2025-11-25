@@ -1,12 +1,82 @@
 require('dotenv').config({ path: '.env.local' });
 const mongoose = require('mongoose');
 
-// Import models
-const User = require('../pages/api/auth/lib/model/user').default;
-const Profile = require('../pages/api/auth/lib/model/profile').default;
+const ADMIN_EMAIL = process.argv[2];
+const Schema = mongoose.Schema;
+
+// Define User schema
+const userSchema = new Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    name: String,
+    status: {
+      role: String,
+      locked: Date,
+    },
+    affiliate: {},
+    alternate_emails: [],
+    zip_code: String,
+    following: [],
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Define Profile schema
+const profileSchema = new Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    slug: String,
+    active: Boolean,
+    status: {},
+    administrative: {},
+    locally_based: String,
+    details: String,
+    background: String,
+    five_words: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    socials: {},
+    phone_number: String,
+    whatsapp_community: Boolean,
+    pronouns: {},
+    tags: String,
+    hearaboutus: String,
+    affiliate: String,
+    counties: {},
+    categories: {},
+    primary_address: {},
+    gentedepana: {},
+    geo: {},
+    locations: [],
+    images: {},
+    linked_profiles: [],
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const User = mongoose.models.user || mongoose.model('user', userSchema);
+const Profile =
+  mongoose.models.profile || mongoose.model('profile', profileSchema);
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const ADMIN_EMAIL = process.argv[2];
 
 async function addAdmin() {
   if (!ADMIN_EMAIL) {
