@@ -49,7 +49,7 @@ export default async function handler(
   const offset = per_page * page_number - per_page;
 
   dbConnect();
-  const listCount = await user.count();
+  const listCount = await user.countDocuments();
   const pagination = {
     count: listCount,
     per_page: per_page,

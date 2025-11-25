@@ -49,7 +49,7 @@ export default async function handler(
   const per_page = 20;
   const offset = per_page * page_number - per_page;
 
-  const contactUsCount = await contactUs.count();
+  const contactUsCount = await contactUs.countDocuments();
   const pagination = {
     count: contactUsCount,
     per_page: per_page,

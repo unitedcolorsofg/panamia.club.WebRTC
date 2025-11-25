@@ -49,7 +49,7 @@ export default async function handler(
   const per_page = 20;
   const offset = per_page * page_number - per_page;
 
-  const signupCount = await signup.count();
+  const signupCount = await signup.countDocuments();
   const pagination = {
     count: signupCount,
     per_page: per_page,
