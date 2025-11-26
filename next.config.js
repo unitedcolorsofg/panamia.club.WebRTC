@@ -4,6 +4,11 @@ const nextConfig = {
   trailingSlash: true,
   output: 'standalone',
 
+  // Skip ESLint during builds (Next.js 15 ESLint plugin has compatibility issues)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Required for Mongoose 8.x compatibility (moved from experimental in Next.js 15)
   serverExternalPackages: ['mongoose'],
 
