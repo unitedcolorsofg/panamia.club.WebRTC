@@ -28,4 +28,9 @@ const Donations: NextPage = () => {
   );
 };
 
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Donations;

@@ -78,4 +78,9 @@ const Podcasts: NextPage = () => {
   );
 };
 
+// Force server-side rendering to ensure router.query is available
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Podcasts;

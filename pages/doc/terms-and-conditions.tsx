@@ -1087,4 +1087,9 @@ const Doc_TermsAndConditions: NextPage = () => {
   );
 };
 
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Doc_TermsAndConditions;

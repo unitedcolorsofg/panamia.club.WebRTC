@@ -49,4 +49,9 @@ const Event_Panimo2024: React.FC = () => {
   );
 };
 
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Event_Panimo2024;

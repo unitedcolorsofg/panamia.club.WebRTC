@@ -154,4 +154,9 @@ const Form_ContactUs: NextPage = () => {
   );
 };
 
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Form_ContactUs;

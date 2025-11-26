@@ -445,4 +445,9 @@ const Directory_Search: NextPage = () => {
   );
 };
 
+// Force server-side rendering to ensure router.query is available
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Directory_Search;

@@ -301,4 +301,9 @@ const Home: NextPage = () => {
   );
 };
 
+// Force server-side rendering for homepage (uses router for search)
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Home;

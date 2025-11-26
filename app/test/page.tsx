@@ -1,3 +1,6 @@
+// Force dynamic rendering for App Router pages
+export const dynamic = 'force-dynamic';
+
 export default function TestPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
@@ -6,7 +9,7 @@ export default function TestPage() {
           App Router Works!
         </h1>
         <p className="text-gray-600">
-          This page is served by Next.js 13 App Router with Tailwind CSS.
+          This page is served by Next.js 15 App Router with Tailwind CSS.
         </p>
         <div className="mt-4 flex gap-2">
           <div className="h-4 w-4 rounded-full bg-blue-500"></div>

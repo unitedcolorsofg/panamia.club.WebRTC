@@ -103,4 +103,9 @@ const Podcasts: NextPage = () => {
   );
 };
 
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default Podcasts;

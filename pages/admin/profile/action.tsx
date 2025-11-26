@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 
 import styles from '@/styles/admin/Action.module.css';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PanaButton from '@/components/PanaButton';
 
@@ -14,34 +14,39 @@ const Admin_Profile_Approve: NextPage = () => {
   const [profileUrl, setProfileUrl] = useState('');
   const [totalProfiles, setTotalProfiles] = useState(0);
 
-  const email = router.query.email;
-  const accessKey = router.query.access;
-  const action = router.query.action;
+  useEffect(() => {
+    const { email, access: accessKey, action } = router.query;
 
-  if (action == 'approve' || action == 'decline') {
-    axios
-      .post(
-        '/api/admin/profile/action',
-        { email: email, access: accessKey, action: action },
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .then((response) => {
-        if (response?.data?.success) {
-          const data = response.data.data[0];
-          setActionResponse(data.message);
-          setProfileUrl(`/profile/${data.handle}`);
-          setProfileName(data.name);
-          setTotalProfiles(data.total);
-        } else {
-          setActionResponse(response.data.error);
-        }
-      });
-  }
+    // Only proceed if we have the required query parameters
+    if (action === 'approve' || action === 'decline') {
+      axios
+        .post(
+          '/api/admin/profile/action',
+          { email, access: accessKey, action },
+          {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+        .then((response) => {
+          if (response?.data?.success) {
+            const data = response.data.data[0];
+            setActionResponse(data.message);
+            setProfileUrl(`/profile/${data.handle}`);
+            setProfileName(data.name);
+            setTotalProfiles(data.total);
+          } else {
+            setActionResponse(response.data.error);
+          }
+        })
+        .catch((error) => {
+          console.error('Error processing profile action:', error);
+          setActionResponse('An error occurred processing this action');
+        });
+    }
+  }, [router.query]);
 
   return (
     <div className={styles.actionPage}>
@@ -61,5 +66,10 @@ const Admin_Profile_Approve: NextPage = () => {
     </div>
   );
 };
+
+// Force server-side rendering for this admin page
+export async function getServerSideProps() {
+  return { props: {} };
+}
 
 export default Admin_Profile_Approve;

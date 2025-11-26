@@ -523,4 +523,9 @@ const DonatePage: React.FC = () => {
   );
 };
 
+// Force server-side rendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export default DonatePage;
