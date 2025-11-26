@@ -3,10 +3,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './../auth/[...nextauth]';
 
-import dbConnect from '.././auth/lib/connectdb';
+import dbConnect from '@/lib/connectdb';
 import { forceInt, forceString } from '@/lib/standardized';
 import { getSearch } from '@/lib/server/directory';
-import user from '../auth/lib/model/user';
+import user from '@/lib/model/user';
 import { getAdminSearch } from '@/lib/server/admin';
 
 interface ResponseData {

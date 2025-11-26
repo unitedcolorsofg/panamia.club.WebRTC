@@ -1,5 +1,5 @@
-import dbConnect from 'pages/api/auth/lib/connectdb';
-import interaction from 'pages/api/auth/lib/model/interaction';
+import dbConnect from '@/lib/connectdb';
+import interaction from '@/lib/model/interaction';
 
 const interactionActions = {
   newsletter_signup: {

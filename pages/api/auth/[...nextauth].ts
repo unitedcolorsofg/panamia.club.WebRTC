@@ -8,7 +8,7 @@ import { DefaultSession, User, TokenSet } from 'next-auth';
 // import { compare } from "bcrypt";
 // import CredentialsProvider from "next-auth/providers/credentials";
 
-import clientPromise from './lib/mongodb';
+import clientPromise from '@/lib/mongodb';
 
 const mongoAdapterOptions = {
   collections: {

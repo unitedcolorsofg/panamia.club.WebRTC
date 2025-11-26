@@ -2,12 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   trailingSlash: true,
+  output: 'standalone',
 
-  // Required for Mongoose 8.x compatibility with Next.js 14
-  experimental: {
-    esmExternals: 'loose',
-    serverComponentsExternalPackages: ['mongoose'],
-  },
+  // Required for Mongoose 8.x compatibility (moved from experimental in Next.js 15)
+  serverExternalPackages: ['mongoose'],
 
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     config.module.rules.push({

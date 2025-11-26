@@ -2,11 +2,11 @@ import NextAuth from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { MongoClient } from 'mongodb';
 import EmailProvider from 'next-auth/providers/email';
-import clientPromise from './auth/lib/mongodb';
-import dbConnect from './auth/lib/connectdb';
+import clientPromise from '@/lib/mongodb';
+import dbConnect from '@/lib/connectdb';
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
 import { compare } from 'bcrypt';
-import auth from './auth/lib/model/users';
+import auth from '@/lib/model/users';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { redirect } from 'next/dist/server/api-utils';
 

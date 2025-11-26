@@ -3,8 +3,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '../auth/[...nextauth]';
-import dbConnect from '../auth/lib/connectdb';
-import user from '../auth/lib/model/user';
+import dbConnect from '@/lib/connectdb';
+import user from '@/lib/model/user';
 import { unguardUser } from '@/lib/user';
 
 interface ResponseData {

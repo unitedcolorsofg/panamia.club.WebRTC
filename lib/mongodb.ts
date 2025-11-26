@@ -1,4 +1,4 @@
-// pages/api/auth/lib/mongodb.ts
+// lib/mongodb.ts
 import { MongoClient } from 'mongodb';
 
 let client: MongoClient;

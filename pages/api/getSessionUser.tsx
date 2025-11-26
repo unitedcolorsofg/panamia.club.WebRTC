@@ -4,8 +4,8 @@ import { getServerSession } from 'next-auth/next';
 import { useSession } from 'next-auth/react';
 import { authOptions } from './auth/[...nextauth]';
 
-import dbConnect from './auth/lib/connectdb';
-import user from './auth/lib/model/user';
+import dbConnect from '@/lib/connectdb';
+import user from '@/lib/model/user';
 import { uniqueAffiliateCode } from '@/lib/server/user';
 
 interface ResponseData {

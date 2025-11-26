@@ -129,14 +129,14 @@ export default function MainHeader() {
     e.stopPropagation();
   }
 
-  function Icon(props: IconProps): JSX.Element {
+  function Icon(props: IconProps): React.JSX.Element {
     if (props.reference == 'home') {
       return <IconHome height="20" width="20" />;
     }
     return <></>;
   }
 
-  function MenuItem(props: MenuItemProps): JSX.Element {
+  function MenuItem(props: MenuItemProps): React.JSX.Element {
     return (
       <li className={styles.listItem}>
         <Link legacyBehavior href={props.url}>

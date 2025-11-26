@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import dbConnect from './auth/lib/connectdb';
-import image from './auth/lib/model/images';
+import dbConnect from '@/lib/connectdb';
+import image from '@/lib/model/images';
 import bcrypt from 'bcrypt';
 import { ObjectId } from 'mongodb';
 

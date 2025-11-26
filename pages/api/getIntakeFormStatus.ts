@@ -1,13 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import dbConnect from './auth/lib/connectdb';
-import users from './auth/lib/model/users';
-import artIntake from './auth/lib/model/artintake';
-import servicesIntake from './auth/lib/model/servicesintake';
-import orgIntake from './auth/lib/model/orgintake';
-import apparelIntake from './auth/lib/model/apparelintake';
-import goodsIntake from './auth/lib/model/goodsintake';
-import foodIntake from './auth/lib/model/foodintake';
+import dbConnect from '@/lib/connectdb';
+import users from '@/lib/model/users';
+import artIntake from '@/lib/model/artintake';
+import servicesIntake from '@/lib/model/servicesintake';
+import orgIntake from '@/lib/model/orgintake';
+import apparelIntake from '@/lib/model/apparelintake';
+import goodsIntake from '@/lib/model/goodsintake';
+import foodIntake from '@/lib/model/foodintake';
 
 import { ObjectId } from 'mongodb';
 import { CgFontSpacing } from 'react-icons/cg';

@@ -1,8 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import dbConnect from '../auth/lib/connectdb';
-import profile from '../auth/lib/model/profile';
+import dbConnect from '@/lib/connectdb';
+import profile from '@/lib/model/profile';
 import BrevoApi from '@/lib/brevo_api';
 
 import { getBrevoConfig } from '@/config/brevo';

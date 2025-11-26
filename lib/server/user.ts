@@ -1,5 +1,5 @@
-import dbConnect from 'pages/api/auth/lib/connectdb';
-import user from 'pages/api/auth/lib/model/user';
+import dbConnect from '@/lib/connectdb';
+import user from '@/lib/model/user';
 import { generateAffiliateCode } from '../standardized';
 
 export const getUser = async (email: string) => {

@@ -1,8 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import dbConnect from './auth/lib/connectdb';
-import followers from './auth/lib/model/followers';
-import users from './auth/lib/model/users';
+import dbConnect from '@/lib/connectdb';
+import followers from '@/lib/model/followers';
+import users from '@/lib/model/users';
 import bcrypt from 'bcrypt';
 import { ObjectId } from 'mongodb';
 

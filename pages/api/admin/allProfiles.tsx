@@ -3,12 +3,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '../auth/[...nextauth]';
-import dbConnect from '../auth/lib/connectdb';
-import user from '../auth/lib/model/user';
+import dbConnect from '@/lib/connectdb';
+import user from '@/lib/model/user';
 import { unguardUser } from '@/lib/user';
 import BrevoApi from '@/lib/brevo_api';
 import { getBrevoConfig } from '@/config/brevo';
-import profile from '../auth/lib/model/profile';
+import profile from '@/lib/model/profile';
 import { unguardProfile } from '@/lib/profile';
 
 interface ResponseData {

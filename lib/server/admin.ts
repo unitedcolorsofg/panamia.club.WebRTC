@@ -1,6 +1,6 @@
 // Atlas Search Docs: https://www.mongodb.com/docs/atlas/atlas-search/text/#text
-import dbConnect from 'pages/api/auth/lib/connectdb';
-import profile from 'pages/api/auth/lib/model/profile';
+import dbConnect from '@/lib/connectdb';
+import profile from '@/lib/model/profile';
 import { AdminSearchInterface } from '../query/admin';
 import { dateXdays } from '../standardized';
 
