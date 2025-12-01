@@ -38,24 +38,30 @@ async function createSignInLink() {
     await VerificationToken.deleteMany({ identifier: EMAIL });
 
     // Generate a random token (similar to how NextAuth does it)
-    const token = crypto.randomBytes(32).toString('hex');
+    const rawToken = crypto.randomBytes(32).toString('hex');
 
     // Set expiration to 24 hours from now
     const expires = new Date();
     expires.setHours(expires.getHours() + 24);
 
-    // Create new verification token
+    // NextAuth v5 hashes tokens as: SHA-256(token + NEXTAUTH_SECRET)
+    // When user clicks link with rawToken, NextAuth will hash it with secret and search DB
+    // So we need to store: SHA-256(rawToken + NEXTAUTH_SECRET)
+    const secret = process.env.NEXTAUTH_SECRET || '';
+    const hashedToken = crypto.createHash('sha256').update(rawToken + secret).digest('hex');
+
+    // Create new verification token (store the HASHED token)
     const newToken = new VerificationToken({
       identifier: EMAIL,
-      token: token,
+      token: hashedToken,
       expires: expires,
     });
 
     await newToken.save();
 
-    // Construct the sign-in URL
+    // Construct the sign-in URL (use the RAW token in the URL)
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const signInUrl = `${baseUrl}/api/auth/callback/email?token=${token}&email=${encodeURIComponent(EMAIL)}`;
+    const signInUrl = `${baseUrl}/api/auth/callback/email?token=${rawToken}&email=${encodeURIComponent(EMAIL)}`;
 
     console.log('✅ New sign-in link created!\n');
     console.log('Email:', EMAIL);

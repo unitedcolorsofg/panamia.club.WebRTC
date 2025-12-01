@@ -12,8 +12,76 @@ const mongoAdapterOptions = {
   },
 }
 
+// Fix for NextAuth v5 beta useVerificationToken issue
+// See: https://github.com/nextauthjs/next-auth/discussions/7363
+// See: https://github.com/nextauthjs/next-auth/discussions/4585
+// Note: NextAuth already hashes the token before calling this function,
+// so we search for params.token directly (no additional hashing needed)
+async function customUseVerificationToken(params: { identifier: string; token: string }) {
+  const client = await clientPromise
+  const db = client.db()
+  const collection = db.collection('nextauth_verification_tokens')
+
+  console.log('customUseVerificationToken searching for:', {
+    identifier: params.identifier,
+    token: params.token,
+  })
+
+  // Check all tokens in the database
+  const allTokens = await collection.find({ identifier: params.identifier }).toArray()
+  console.log('All tokens in DB for this email:', allTokens)
+
+  const verificationToken = await collection.findOne({
+    identifier: params.identifier,
+    token: params.token,
+  })
+
+  console.log('Found token:', verificationToken)
+
+  if (!verificationToken) {
+    return null
+  }
+
+  // Delete the token after retrieving it (one-time use)
+  await collection.deleteOne({
+    identifier: params.identifier,
+    token: params.token,
+  })
+
+  return {
+    identifier: verificationToken.identifier,
+    token: verificationToken.token,
+    expires: verificationToken.expires,
+  }
+}
+
+const baseAdapter = MongoDBAdapter(clientPromise, mongoAdapterOptions)
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: MongoDBAdapter(clientPromise, mongoAdapterOptions) as any,
+  adapter: {
+    ...baseAdapter,
+    useVerificationToken: async (params) => {
+      const result = await baseAdapter.useVerificationToken!(params)
+
+      // MongoDB adapter returns operation result {value, ok, lastErrorObject}
+      // Extract the actual document from .value property
+      let verificationToken = result
+      if (result && typeof result === 'object' && 'value' in result) {
+        verificationToken = result.value
+      }
+
+      if (!verificationToken) {
+        return null
+      }
+
+      // Ensure expires is a proper Date object
+      if (verificationToken.expires) {
+        verificationToken.expires = new Date(verificationToken.expires)
+      }
+
+      return verificationToken
+    },
+  },
   providers: [
     EmailProvider({
       server: {
@@ -35,13 +103,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  session: {
+    strategy: 'database',
+  },
   callbacks: {
     async session({ session, user }) {
-      // Privacy: clear name and image
-      if (session.user) {
-        session.user.name = '';
-        session.user.image = '';
+      console.log('Session callback called:', { session, user })
+
+      // Attach user data to session
+      if (user) {
+        session.user = {
+          ...session.user,
+          id: user.id,
+          email: user.email || '',
+          emailVerified: user.emailVerified,
+          // Privacy: clear name and image
+          name: '',
+          image: '',
+        }
       }
+
+      console.log('Session callback returning:', session)
       return session;
     },
   },

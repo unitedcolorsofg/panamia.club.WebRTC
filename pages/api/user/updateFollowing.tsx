@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { auth } from '@/auth';
+import { getApiSession } from '@/lib/auth-api';
 import dbConnect from '@/lib/connectdb';
 import user from '@/lib/model/user';
 import { unguardUser } from '@/lib/user';
@@ -22,7 +22,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
-  const session = await auth();
+  const session = await getApiSession(req, res);
 
   if (!session) {
     return res
