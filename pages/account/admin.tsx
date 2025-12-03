@@ -195,10 +195,10 @@ const Account_Admin: NextPage = () => {
                       </td>
                       <td>
                         {item.active && (
-                          <Link legacyBehavior href={`/profile/${item.slug}`}>
-                            <a target="_blank" rel="noreferrer">
+                          <Link href={`/profile/${item.slug}`} target="_blank" rel="noreferrer">
+                            
                               View
-                            </a>
+                            
                           </Link>
                         )}
                         {!item.active && (

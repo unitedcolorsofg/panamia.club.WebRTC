@@ -19,27 +19,27 @@ export default function GlobalFooter() {
             <strong>PanaMia</strong>
           </li>
           <li>
-            <Link legacyBehavior href="/podcasts">
+            <Link href="/podcasts">
               PanaVizión
             </Link>
           </li>
           <li>
-            <Link legacyBehavior href="/about-us">
+            <Link href="/about-us">
               About
             </Link>
           </li>
           <li>
-            <Link legacyBehavior href="/links">
+            <Link href="/links">
               Links
             </Link>
           </li>
           <li>
-            <Link legacyBehavior href="/directorio">
+            <Link href="/directorio">
               Directorio
             </Link>
           </li>
           <li>
-            <Link legacyBehavior href="/form/join-the-team/">
+            <Link href="/form/join-the-team/">
               Join The Team
             </Link>
           </li>
@@ -49,17 +49,17 @@ export default function GlobalFooter() {
             <strong>Users</strong>
           </li>
           <li hidden>
-            <Link legacyBehavior href="/signin">
+            <Link href="/signin">
               Sign Up
             </Link>
           </li>
           <li>
-            <Link legacyBehavior href="/form/become-a-pana">
+            <Link href="/form/become-a-pana">
               Become A Pana
             </Link>
           </li>
           <li>
-            <Link legacyBehavior href="/form/contact-us">
+            <Link href="/form/contact-us">
               Contact Us
             </Link>
           </li>
@@ -89,8 +89,8 @@ export default function GlobalFooter() {
       </div>
       <div className={styles.termsLink}>
         Please read our{' '}
-        <Link legacyBehavior href="/doc/terms-and-conditions">
-          <a>Terms and Conditions</a>
+        <Link href="/doc/terms-and-conditions">
+          Terms and Conditions
         </Link>
       </div>
     </footer>

@@ -153,8 +153,8 @@ const Account_Profile_GenteDePana: NextPage = (props: any) => {
                 special interest sponsors, we want to remain a grassroots
                 organization. This means many small donors. You can check out
                 the &nbsp;
-                <Link legacyBehavior href="/donate/">
-                  <a>membership tiers</a>
+                <Link href="/donate/">
+                  membership tiers
                 </Link>
                 .
               </p>

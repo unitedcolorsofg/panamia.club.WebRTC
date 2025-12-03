@@ -29,18 +29,18 @@ const Error: NextPage<ErrorProps> = ({ statusCode }) => {
           <p style={{ fontSize: '1.125rem', color: '#666', marginBottom: '2rem' }}>
             {message}
           </p>
-          <Link legacyBehavior href="/">
-            <a style={{
-              display: 'inline-block',
-              padding: '0.75rem 2rem',
-              backgroundColor: '#007bff',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '0.375rem',
-              fontWeight: '500'
-            }}>
+          <Link href="/" style={{
+            display: 'inline-block',
+            padding: '0.75rem 2rem',
+            backgroundColor: '#007bff',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '0.375rem',
+            fontWeight: '500'
+          }}>
+            
               Go Back Home
-            </a>
+            
           </Link>
         </div>
       </main>

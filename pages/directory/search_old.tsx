@@ -202,11 +202,10 @@ const SearchFormAndList = () => {
             <div className={styles.cardDetails}>{item.details}</div>
             <div className={styles.cardActions}>
               <>
-                <Link legacyBehavior href={`/profile/${item.slug}`}>
-                  <a>
-                    <IconUserCircle height="20" />
-                    View Profile
-                  </a>
+                <Link href={`/profile/${item.slug}`}>
+
+                  <IconUserCircle height="20" />View Profile
+                                    
                 </Link>
                 &emsp;
                 <a href="">
@@ -374,11 +373,10 @@ const SearchFormAndList = () => {
               </div>
               <div className={styles.cardActions}>
                 <>
-                  <Link legacyBehavior href="/form/become-a-pana">
-                    <a>
-                      <IconForms height="20" />
-                      Sign up to see your business listed!
-                    </a>
+                  <Link href="/form/become-a-pana">
+
+                    <IconForms height="20" />Sign up to see your business listed!
+                                        
                   </Link>
                   &emsp;
                 </>
@@ -387,8 +385,8 @@ const SearchFormAndList = () => {
           </article>
           {searchResults && (
             <div className={styles.searchLoginCallout}>
-              <Link legacyBehavior href="/signin">
-                <a>Sign In</a>
+              <Link href="/signin">
+                Sign In
               </Link>{' '}
               to save <IconHeart height="20" color="red" fill="red" /> favorites
               and follow their updates!
@@ -398,7 +396,7 @@ const SearchFormAndList = () => {
         <section className={styles.directoryReferrals}>
           <p>
             Don't see your favorite local spot here?{' '}
-            <Link legacyBehavior href="/form/contact-us">
+            <Link href="/form/contact-us">
               Send us a recommendation!
             </Link>
           </p>

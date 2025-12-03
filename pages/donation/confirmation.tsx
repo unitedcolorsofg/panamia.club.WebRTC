@@ -67,8 +67,8 @@ const Podcasts: NextPage = () => {
           <p>
             If you have any questions or comments, please feel free to contact
             us at{' '}
-            <Link legacyBehavior href="mailto:gentede@panamia.club">
-              <a>gentede@panamia.club</a>
+            <Link href="mailto:gentede@panamia.club">
+              gentede@panamia.club
             </Link>
           </p>
         </section>

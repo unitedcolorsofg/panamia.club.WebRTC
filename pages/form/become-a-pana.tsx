@@ -200,8 +200,8 @@ const Form_BecomeAPana: NextPage = () => {
                 on our Local Directory. Once your user profile is live, you’ll
                 be able to edit this information at any time. You can browse our
                 Local Directory here.&nbsp;
-                <Link legacyBehavior href="/directory/search/">
-                  <a>Directory Sheet</a>
+                <Link href="/directory/search/">
+                  Directory Sheet
                 </Link>
               </p>
               <p>
@@ -289,8 +289,8 @@ const Form_BecomeAPana: NextPage = () => {
                           checked={locally_based == 'other'}
                         />
                         &emsp;Other (please{' '}
-                        <Link legacyBehavior href="/form/contact-us/">
-                          <a>contact us</a>
+                        <Link href="/form/contact-us/">
+                          contact us
                         </Link>{' '}
                         with details)
                       </label>
@@ -781,10 +781,13 @@ const Form_BecomeAPana: NextPage = () => {
                 </p>
                 <p className={styles.formFields}>
                   Please read our&nbsp;
-                  <Link legacyBehavior href="/doc/terms-and-conditions">
-                    <a target="_blank" rel="noopener noreferrer">
+                  <Link
+                    href="/doc/terms-and-conditions"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    
                       Terms and Conditions
-                    </a>
+                    
                   </Link>
                   &nbsp;which includes our general terms, our privacy policy,
                   and permission to accept email and SMS marketing.
@@ -836,14 +839,14 @@ const Form_BecomeAPana: NextPage = () => {
                 </p>
                 <p>
                   You can{' '}
-                  <Link legacyBehavior href="/api/auth/signin">
-                    <a>Sign Up</a>
+                  <Link href="/api/auth/signin">
+                    Sign Up
                   </Link>
                   &nbsp;using your profile email to see other features and
                   continue updating your profile! The Pana MIA Club community is
                   here for you! Visit our{' '}
-                  <Link legacyBehavior href="/about-us">
-                    <a>About Us</a>
+                  <Link href="/about-us">
+                    About Us
                   </Link>{' '}
                   to learn more about how we support locals.
                 </p>
@@ -853,8 +856,8 @@ const Form_BecomeAPana: NextPage = () => {
         </section>
         <p className={styles.formTrouble}>
           If you're having any trouble with our form, please{' '}
-          <Link legacyBehavior href="/form/contact-us/">
-            <a>Contact Us</a>
+          <Link href="/form/contact-us/">
+            Contact Us
           </Link>
         </p>
       </div>

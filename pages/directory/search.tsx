@@ -178,16 +178,16 @@ function SearchResults({
         </p>
         <p>Select an option below to try out these popular categories!</p>
         <p>
-          <Link legacyBehavior href="/directory/search/?q=music">
-            <a>Music</a>
+          <Link href="/directory/search/?q=music">
+            Music
           </Link>
           &emsp;
-          <Link legacyBehavior href="/directory/search/?q=food">
-            <a>Food</a>
+          <Link href="/directory/search/?q=food">
+            Food
           </Link>
           &emsp;
-          <Link legacyBehavior href="/directory/search/?q=clothing">
-            <a>Clothing</a>
+          <Link href="/directory/search/?q=clothing">
+            Clothing
           </Link>
           &emsp;
         </p>
@@ -249,11 +249,10 @@ function SearchResults({
           </div>
           <div className={styles.cardDetails}>{detailLimit(item.details)}</div>
           <div className={styles.cardActions}>
-            <Link legacyBehavior href={`/profile/${item.slug}`}>
-              <a>
-                <IconUserCircle height="20" />
-                View Profile
-              </a>
+            <Link href={`/profile/${item.slug}`}>
+
+              <IconUserCircle height="20" />View Profile
+                            
             </Link>
             {loggedInUser && (
               <>
@@ -781,11 +780,10 @@ const Directory_Search: NextPage = (props: any) => {
                 </div>
                 <div className={styles.cardActions}>
                   <>
-                    <Link legacyBehavior href="/form/become-a-pana">
-                      <a>
-                        <IconForms height="20" />
-                        Sign up to see your business listed!
-                      </a>
+                    <Link href="/form/become-a-pana">
+
+                      <IconForms height="20" />Sign up to see your business listed!
+                                            
                     </Link>
                     &emsp;
                   </>
@@ -793,8 +791,8 @@ const Directory_Search: NextPage = (props: any) => {
               </div>
             </article>
             <div className={styles.searchLoginCallout}>
-              <Link legacyBehavior href="/signin">
-                <a>Sign Up</a>
+              <Link href="/signin">
+                Sign Up
               </Link>{' '}
               to follow <IconHeart height="20" color="red" fill="red" /> your
               favorite profiles and get notified about their updates!
@@ -803,7 +801,7 @@ const Directory_Search: NextPage = (props: any) => {
           <section className={styles.directoryReferrals}>
             <p>
               Don't see your favorite local spot here?{' '}
-              <Link legacyBehavior href="/form/contact-us">
+              <Link href="/form/contact-us">
                 Send us a recommendation!
               </Link>
             </p>
@@ -847,10 +845,10 @@ const Directory_Search: NextPage = (props: any) => {
               <ul>{userlistElements}</ul>
             </div>
             <div className={styles.dialogFooter}>
-              <Link legacyBehavior href="/account/user/lists/">
-                <a target="_blank" rel="noreferrer">
+              <Link href="/account/user/lists/" target="_blank" rel="noreferrer">
+                
                   Edit Lists
-                </a>
+                
               </Link>
             </div>
           </dialog>

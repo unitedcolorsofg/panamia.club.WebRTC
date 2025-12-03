@@ -101,15 +101,14 @@ const Links: NextPage = () => {
             </a>
           </div>
           <div className={classNames(styles.link, styles.linkHighlight)}>
-            <Link legacyBehavior href="/form/become-a-pana/">
-              <a target="_blank" rel="noreferrer">
-                Become Our Pana!
-                <br />
-                <small>
-                  Are you a local entrepreneur or creative based in SoFlo?
-                  You’re invited to join our open-access Local’s Directory!
-                </small>
-              </a>
+            <Link href="/form/become-a-pana/" target="_blank" rel="noreferrer">
+              Become Our Pana!
+                              <br />
+              <small>
+                Are you a local entrepreneur or creative based in SoFlo?
+                You’re invited to join our open-access Local’s Directory!
+              </small>
+
             </Link>
           </div>
           <div
@@ -117,17 +116,16 @@ const Links: NextPage = () => {
             hidden
           >
             <Link
-              legacyBehavior
               href="/form/cosa-hecha-love-local-market-vendor/"
-            >
-              <a target="_blank" rel="noreferrer">
-                Cosa Hecha + Love Local Market Vendor Application
-                <br />
-                <small>
-                  Sign up to be a vendor at Pana MIA Club's sustainability
-                  market!
-                </small>
-              </a>
+              target="_blank"
+              rel="noreferrer">
+              Cosa Hecha + Love Local Market Vendor Application
+                              <br />
+              <small>
+                Sign up to be a vendor at Pana MIA Club's sustainability
+                market!
+              </small>
+
             </Link>
           </div>
           <div className={classNames(styles.link, styles.linkVideo)}>

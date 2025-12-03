@@ -93,8 +93,8 @@ const Form_BecomeAnAffiliate: NextPage = () => {
             <br />
             <p className={styles.formFields}>
               Please review the Full{' '}
-              <Link legacyBehavior href="/doc/affiliate-terms-and-conditions">
-                <a>Terms and Conditions</a>
+              <Link href="/doc/affiliate-terms-and-conditions">
+                Terms and Conditions
               </Link>
             </p>
             <div className={styles.formFields}>

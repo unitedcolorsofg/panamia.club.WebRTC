@@ -139,14 +139,14 @@ export default function MainHeader() {
   function MenuItem(props: MenuItemProps): React.JSX.Element {
     return (
       <li className={styles.listItem}>
-        <Link legacyBehavior href={props.url}>
-          <a
-            onClick={onMenuClick}
-            className={props?.special == true ? styles.linkSpecial : ''}
-          >
-            <Icon reference={props.icon} />
-            {props.label}
-          </a>
+        <Link
+          href={props.url}
+          onClick={onMenuClick}
+          className={props?.special == true ? styles.linkSpecial : ''}>
+
+          <Icon reference={props.icon} />
+          {props.label}
+
         </Link>
       </li>
     );
@@ -173,7 +173,9 @@ export default function MainHeader() {
       <div className={styles.navWrap}>
         <nav role="navigation" className={styles.nav} style={navStyle}>
           <div className={styles.navLogo}>
-            <Link legacyBehavior href="/">
+            <Link href="/">
+              {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
+              }
               <img src="/logos/pana_logo_long_pink.png" />
             </Link>
           </div>
@@ -224,46 +226,41 @@ export default function MainHeader() {
               <ul>
                 {isAdmin && (
                   <li className={styles.adminLink}>
-                    <Link legacyBehavior href="/account/admin">
-                      <a>
-                        <IconAlien height="16" width="16" />
-                        &nbsp;ADMIN
-                      </a>
+                    <Link href="/account/admin">
+
+                      <IconAlien height="16" width="16" />ADMIN
+                                            
                     </Link>
                   </li>
                 )}
                 <li>
-                  <Link legacyBehavior href="/account/user">
-                    <a>
-                      <IconSettings height="16" width="16" />
-                      &nbsp;Account
-                    </a>
+                  <Link href="/account/user">
+
+                    <IconSettings height="16" width="16" />Account
+                                        
                   </Link>
                 </li>
                 <li>
-                  <Link legacyBehavior href="/account/user/following">
-                    <a>
-                      <IconUsers height="16" width="16" />
-                      &nbsp;Following
-                    </a>
+                  <Link href="/account/user/following">
+
+                    <IconUsers height="16" width="16" />Following
+                                        
                   </Link>
                 </li>
                 {isAdmin && (
                   <li>
-                    <Link legacyBehavior href="/account/user/lists">
-                      <a>
-                        <IconPlaylistAdd height="16" width="16" />
-                        &nbsp;Lists
-                      </a>
+                    <Link href="/account/user/lists">
+
+                      <IconPlaylistAdd height="16" width="16" />Lists
+                                            
                     </Link>
                   </li>
                 )}
                 <li>
-                  <Link legacyBehavior href="/api/auth/signout">
-                    <a>
-                      <IconLogout height="16" width="16" />
-                      &nbsp;Sign Out
-                    </a>
+                  <Link href="/api/auth/signout">
+
+                    <IconLogout height="16" width="16" />Sign Out
+                                        
                   </Link>
                 </li>
               </ul>

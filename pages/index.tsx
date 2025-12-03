@@ -158,7 +158,6 @@ const Home: NextPage = () => {
           </div>
         </div>
       </section>
-
       <section className={styles.queTalContainer}>
         <div className={styles.queTalHero}>
           <h2>¿¿Que Tal Pana??</h2>
@@ -242,7 +241,7 @@ const Home: NextPage = () => {
             <dt>How do I sign up?</dt>
             <dd>
               Simple! Fill out our Google form.{' '}
-              <Link legacyBehavior href="/become-a-pana">
+              <Link href="/become-a-pana">
                 Become a Pana!
               </Link>
             </dd>

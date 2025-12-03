@@ -81,7 +81,6 @@ const Home: NextPage = () => {
           </div>
         </div>
       </section>
-
       <section className={styles.ourStorySection}>
         <div className={styles.ourStoryContainer}>
           <img src="/img/about/clari_and_anette.webp" />
@@ -162,7 +161,7 @@ const Home: NextPage = () => {
             <dt>How do I sign up?</dt>
             <dd>
               Simple! Fill out our Google form.{' '}
-              <Link legacyBehavior href="/become-a-pana">
+              <Link href="/become-a-pana">
                 Become a Pana!
               </Link>
             </dd>
