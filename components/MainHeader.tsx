@@ -244,7 +244,14 @@ export default function MainHeader() {
                   <Link href="/account/user/following">
 
                     <IconUsers height="16" width="16" />Following
-                                        
+
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/mentoring/discover">
+
+                    <IconUsers height="16" width="16" />Mentoring
+
                   </Link>
                 </li>
                 {isAdmin && (
@@ -252,7 +259,7 @@ export default function MainHeader() {
                     <Link href="/account/user/lists">
 
                       <IconPlaylistAdd height="16" width="16" />Lists
-                                            
+
                     </Link>
                   </li>
                 )}

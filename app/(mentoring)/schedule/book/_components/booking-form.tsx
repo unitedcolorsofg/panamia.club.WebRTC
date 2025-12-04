@@ -13,7 +13,7 @@ import { createSessionSchema, type CreateSessionData } from '@/lib/validations/s
 export function BookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mentorEmail = searchParams.get('mentor');
+  const mentorEmail = searchParams?.get('mentor') || null;
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState('');

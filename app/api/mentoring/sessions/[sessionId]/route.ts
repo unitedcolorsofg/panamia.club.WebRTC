@@ -10,8 +10,11 @@ import {
 // GET - Get session details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
+  // Next.js 15: params is now a Promise
+  const { sessionId } = await params;
+
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -20,7 +23,7 @@ export async function GET(
   await dbConnect();
 
   const mentorSession = await MentorSession.findOne({
-    sessionId: params.sessionId,
+    sessionId: sessionId,
     $or: [
       { mentorEmail: session.user.email },
       { menteeEmail: session.user.email },
@@ -37,8 +40,11 @@ export async function GET(
 // PATCH - Update session (notes, status)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
+  // Next.js 15: params is now a Promise
+  const { sessionId } = await params;
+
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -57,7 +63,7 @@ export async function PATCH(
 
     const updated = await MentorSession.findOneAndUpdate(
       {
-        sessionId: params.sessionId,
+        sessionId: sessionId,
         $or: [
           { mentorEmail: session.user.email },
           { menteeEmail: session.user.email },
@@ -82,7 +88,7 @@ export async function PATCH(
 
     const updated = await MentorSession.findOneAndUpdate(
       {
-        sessionId: params.sessionId,
+        sessionId: sessionId,
         $or: [
           { mentorEmail: session.user.email },
           { menteeEmail: session.user.email },

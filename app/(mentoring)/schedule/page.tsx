@@ -27,13 +27,19 @@ export default async function SchedulePage() {
 
   // Fetch past sessions
   const pastSessions = await MentorSession.find({
-    $or: [
-      { mentorEmail: session.user.email },
-      { menteeEmail: session.user.email },
-    ],
-    $or: [
-      { status: { $in: ['completed', 'cancelled'] } },
-      { scheduledAt: { $lt: new Date() } },
+    $and: [
+      {
+        $or: [
+          { mentorEmail: session.user.email },
+          { menteeEmail: session.user.email },
+        ],
+      },
+      {
+        $or: [
+          { status: { $in: ['completed', 'cancelled'] } },
+          { scheduledAt: { $lt: new Date() } },
+        ],
+      },
     ],
   })
     .sort({ scheduledAt: -1 })
