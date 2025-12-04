@@ -1,0 +1,249 @@
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  mentoringProfileSchema,
+  type MentoringProfileData,
+} from '@/lib/validations/mentoring-profile';
+
+interface ProfileFormProps {
+  initialData?: Partial<MentoringProfileData>;
+}
+
+export function ProfileForm({ initialData }: ProfileFormProps) {
+  const router = useRouter();
+  const [expertise, setExpertise] = useState<string[]>(
+    initialData?.expertise || []
+  );
+  const [languages, setLanguages] = useState<string[]>(
+    initialData?.languages || []
+  );
+  const [expertiseInput, setExpertiseInput] = useState('');
+  const [languageInput, setLanguageInput] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<MentoringProfileData>({
+    resolver: zodResolver(mentoringProfileSchema),
+    defaultValues: {
+      enabled: initialData?.enabled || false,
+      expertise: initialData?.expertise || [],
+      languages: initialData?.languages || [],
+      bio: initialData?.bio || '',
+      videoIntroUrl: initialData?.videoIntroUrl || '',
+      goals: initialData?.goals || '',
+      hourlyRate: initialData?.hourlyRate || 0,
+    },
+  });
+
+  const addExpertise = () => {
+    if (expertiseInput.trim() && !expertise.includes(expertiseInput.trim())) {
+      setExpertise([...expertise, expertiseInput.trim()]);
+      setExpertiseInput('');
+    }
+  };
+
+  const removeExpertise = (item: string) => {
+    setExpertise(expertise.filter((e) => e !== item));
+  };
+
+  const addLanguage = () => {
+    if (languageInput.trim() && !languages.includes(languageInput.trim())) {
+      setLanguages([...languages, languageInput.trim()]);
+      setLanguageInput('');
+    }
+  };
+
+  const removeLanguage = (item: string) => {
+    setLanguages(languages.filter((l) => l !== item));
+  };
+
+  const onSubmit = async (data: MentoringProfileData) => {
+    try {
+      // TODO: Implement API endpoint to update profile
+      console.log('Submitting profile:', { ...data, expertise, languages });
+
+      // Placeholder: This would call the API to update the profile
+      // await fetch('/api/mentoring/profile', {
+      //   method: 'PATCH',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ ...data, expertise, languages }),
+      // });
+
+      router.push('/mentoring/profile');
+      router.refresh();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Enable Mentoring Toggle */}
+      <div className="bg-white p-6 rounded-lg border">
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="enabled"
+            {...register('enabled')}
+            className="w-4 h-4"
+          />
+          <label htmlFor="enabled" className="font-semibold">
+            Enable mentoring profile
+          </label>
+        </div>
+        <p className="text-sm text-gray-500 mt-2">
+          When enabled, others can discover you as a mentor and book sessions.
+        </p>
+      </div>
+
+      {/* Bio */}
+      <div className="bg-white p-6 rounded-lg border space-y-3">
+        <label className="block font-semibold">Mentoring Bio</label>
+        <Textarea
+          {...register('bio')}
+          placeholder="Describe your mentoring approach and what you can help with..."
+          className="min-h-32"
+        />
+        {errors.bio && (
+          <p className="text-sm text-red-600">{errors.bio.message}</p>
+        )}
+      </div>
+
+      {/* Expertise */}
+      <div className="bg-white p-6 rounded-lg border space-y-3">
+        <label className="block font-semibold">Areas of Expertise</label>
+        <div className="flex space-x-2">
+          <Input
+            value={expertiseInput}
+            onChange={(e) => setExpertiseInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addExpertise())}
+            placeholder="e.g., JavaScript, Career Advice"
+          />
+          <Button type="button" onClick={addExpertise}>
+            Add
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {expertise.map((item) => (
+            <span
+              key={item}
+              className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center space-x-2"
+            >
+              <span>{item}</span>
+              <button
+                type="button"
+                onClick={() => removeExpertise(item)}
+                className="text-blue-600 hover:text-blue-800"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+        {expertise.length === 0 && (
+          <p className="text-sm text-gray-500">Add at least one expertise area</p>
+        )}
+      </div>
+
+      {/* Languages */}
+      <div className="bg-white p-6 rounded-lg border space-y-3">
+        <label className="block font-semibold">Languages</label>
+        <div className="flex space-x-2">
+          <Input
+            value={languageInput}
+            onChange={(e) => setLanguageInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addLanguage())}
+            placeholder="e.g., English, Spanish"
+          />
+          <Button type="button" onClick={addLanguage}>
+            Add
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {languages.map((item) => (
+            <span
+              key={item}
+              className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm flex items-center space-x-2"
+            >
+              <span>{item}</span>
+              <button
+                type="button"
+                onClick={() => removeLanguage(item)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+        {languages.length === 0 && (
+          <p className="text-sm text-gray-500">Add at least one language</p>
+        )}
+      </div>
+
+      {/* Video Introduction URL */}
+      <div className="bg-white p-6 rounded-lg border space-y-3">
+        <label className="block font-semibold">Video Introduction URL (Optional)</label>
+        <Input
+          {...register('videoIntroUrl')}
+          type="url"
+          placeholder="https://example.com/intro-video.mp4"
+        />
+        {errors.videoIntroUrl && (
+          <p className="text-sm text-red-600">{errors.videoIntroUrl.message}</p>
+        )}
+      </div>
+
+      {/* Goals */}
+      <div className="bg-white p-6 rounded-lg border space-y-3">
+        <label className="block font-semibold">Mentoring Goals (Optional)</label>
+        <Textarea
+          {...register('goals')}
+          placeholder="What you hope to achieve through mentoring..."
+        />
+        {errors.goals && (
+          <p className="text-sm text-red-600">{errors.goals.message}</p>
+        )}
+      </div>
+
+      {/* Hourly Rate */}
+      <div className="bg-white p-6 rounded-lg border space-y-3">
+        <label className="block font-semibold">Hourly Rate (USD)</label>
+        <Input
+          {...register('hourlyRate', { valueAsNumber: true })}
+          type="number"
+          min="0"
+          step="1"
+          placeholder="0 for free mentoring"
+        />
+        {errors.hourlyRate && (
+          <p className="text-sm text-red-600">{errors.hourlyRate.message}</p>
+        )}
+        <p className="text-sm text-gray-500">Set to 0 for free mentoring</p>
+      </div>
+
+      {/* Submit */}
+      <div className="flex space-x-4">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Profile'}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.back()}
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}

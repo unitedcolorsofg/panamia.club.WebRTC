@@ -1,5 +1,8 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
+import dbConnect from '@/lib/connectdb';
+import MentorSession from '@/lib/model/mentorSession';
+import { SessionsList } from './_components/sessions-list';
 
 export default async function SchedulePage() {
   const session = await auth();
@@ -7,19 +10,58 @@ export default async function SchedulePage() {
     redirect('/api/auth/signin');
   }
 
+  await dbConnect();
+
+  // Fetch upcoming sessions
+  const upcomingSessions = await MentorSession.find({
+    $or: [
+      { mentorEmail: session.user.email },
+      { menteeEmail: session.user.email },
+    ],
+    status: { $in: ['scheduled', 'in_progress'] },
+    scheduledAt: { $gte: new Date() },
+  })
+    .sort({ scheduledAt: 1 })
+    .limit(20)
+    .lean();
+
+  // Fetch past sessions
+  const pastSessions = await MentorSession.find({
+    $or: [
+      { mentorEmail: session.user.email },
+      { menteeEmail: session.user.email },
+    ],
+    $or: [
+      { status: { $in: ['completed', 'cancelled'] } },
+      { scheduledAt: { $lt: new Date() } },
+    ],
+  })
+    .sort({ scheduledAt: -1 })
+    .limit(20)
+    .lean();
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">My Sessions</h1>
-      <div className="bg-white p-6 rounded-lg border">
-        <p className="text-gray-600">
-          Sessions dashboard will be implemented in Phase 7. This will show:
-        </p>
-        <ul className="list-disc list-inside mt-4 space-y-2 text-gray-700">
-          <li>Upcoming sessions (as mentor and mentee)</li>
-          <li>Past sessions with notes access</li>
-          <li>Join session button</li>
-          <li>Cancel session functionality</li>
-        </ul>
+
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Upcoming Sessions</h2>
+          <SessionsList
+            sessions={JSON.parse(JSON.stringify(upcomingSessions))}
+            userEmail={session.user.email}
+            type="upcoming"
+          />
+        </div>
+
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Past Sessions</h2>
+          <SessionsList
+            sessions={JSON.parse(JSON.stringify(pastSessions))}
+            userEmail={session.user.email}
+            type="past"
+          />
+        </div>
       </div>
     </div>
   );
