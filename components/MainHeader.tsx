@@ -18,6 +18,7 @@ import CallToActionBar from './CallToActionBar';
 import { getUserSession } from '../lib/user';
 import PanaLogo from './PanaLogo';
 import PanaButton from './PanaButton';
+import { ThemeToggle } from './theme-toggle';
 
 // https://www.a11ymatters.com/pattern/mobile-nav/
 
@@ -212,6 +213,9 @@ export default function MainHeader() {
               />
             </div>
           )}
+          <div className={styles.sessionButton}>
+            <ThemeToggle />
+          </div>
         </nav>
         <div className={styles.navBorder}></div>
         <dialog
