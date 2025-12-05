@@ -21,6 +21,7 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Users, Calendar, MessageCircle } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function HomePage() {
   const router = useRouter();
@@ -53,8 +54,9 @@ export default function HomePage() {
         className="relative text-center bg-cover bg-center py-8 md:py-12"
         style={{ backgroundImage: 'url(/img/home/website_banner.jpg)' }}
       >
-        {/* Auth Buttons - Top Right */}
+        {/* Auth Buttons & Theme Toggle - Top Right */}
         <div className="absolute top-4 right-4 z-10 flex gap-2">
+          <ThemeToggle />
           {!isLoading && !session && (
             <>
               <Button size="sm" asChild variant="outline" className="bg-white/90 hover:bg-white">

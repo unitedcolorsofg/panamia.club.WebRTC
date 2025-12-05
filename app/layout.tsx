@@ -32,7 +32,7 @@ export default function RootLayout({
       <body className={`${nunito.variable} ${rubik.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

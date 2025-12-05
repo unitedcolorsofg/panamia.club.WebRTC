@@ -177,27 +177,9 @@ export default function MainHeader() {
         <nav role="navigation" className={styles.nav} style={navStyle}>
           <div className={styles.navLogo}>
             <Link href="/">
-              {/* @next-codemod-error This Link previously used the now removed `legacyBehavior` prop, and has a child that might not be an anchor. The codemod bailed out of lifting the child props to the Link. Check that the child component does not render an anchor, and potentially move the props manually to Link. */
-              }
-              <img src="/logos/pana_logo_long_pink.png" />
+              <img src="/logos/pana_logo_long_pink.png" alt="Pana Mia" />
             </Link>
           </div>
-          <button
-            onClick={onBurgerClick}
-            className={styles.burger}
-            id="mainheader-toggle"
-            aria-expanded="false"
-            aria-controls="menu"
-          >
-            <span className="burger-icon"></span>
-            <span className="sr-only">Open Menu</span>
-          </button>
-          <ul
-            id="mainheader-menu"
-            className={menu_active ? activeClasses : styles.navList}
-          >
-            {menu_elements}
-          </ul>
           {session && session.user && (
             <div className={styles.sessionButton}>
               <button onClick={onUserClick}>
@@ -205,19 +187,6 @@ export default function MainHeader() {
               </button>
             </div>
           )}
-          {!session && (
-            <div className={styles.sessionButton}>
-              <PanaButton
-                text="Sign Up"
-                color="blue"
-                hoverColor="blue"
-                href="/api/auth/signin"
-              />
-            </div>
-          )}
-          <div className={styles.sessionButton}>
-            <ThemeToggle />
-          </div>
         </nav>
         <div className={styles.navBorder}></div>
         <dialog
