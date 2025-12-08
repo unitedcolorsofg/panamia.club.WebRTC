@@ -136,9 +136,8 @@ const Account_Profile: NextPage = (session_user) => {
             <div className={styles.profileEditLink}>
               {profile_data.slug && (
                 <Link href={`/profile/${profile_data.slug}`}>
-
-                  <IconExternalLink height="20" />View
-                                    
+                  <IconExternalLink height="20" />
+                  View
                 </Link>
               )}
             </div>
@@ -155,9 +154,8 @@ const Account_Profile: NextPage = (session_user) => {
             </legend>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/contact">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
             <div className={styles.profileFields}>
@@ -178,9 +176,8 @@ const Account_Profile: NextPage = (session_user) => {
             </legend>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/desc">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
             <div className={styles.profileFields}>
@@ -219,9 +216,8 @@ const Account_Profile: NextPage = (session_user) => {
             </legend>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/images">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
             <div className={styles.profileFields}>
@@ -259,9 +255,8 @@ const Account_Profile: NextPage = (session_user) => {
             </legend>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/social">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
             <div className={styles.profileFields}>
@@ -313,9 +308,8 @@ const Account_Profile: NextPage = (session_user) => {
             </legend>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/address">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
             <div className={styles.profileFields}>
@@ -409,9 +403,8 @@ const Account_Profile: NextPage = (session_user) => {
             </legend>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/categories">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
             <div className={styles.profileFields}>
@@ -449,9 +442,8 @@ const Account_Profile: NextPage = (session_user) => {
             </div>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/gentedepana">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
           </fieldset>
@@ -461,9 +453,8 @@ const Account_Profile: NextPage = (session_user) => {
             </legend>
             <div className={styles.profileEditLink}>
               <Link href="/account/profile/contact">
-
-                <IconEdit height="20" />Edit
-                                
+                <IconEdit height="20" />
+                Edit
               </Link>
             </div>
           </fieldset>
