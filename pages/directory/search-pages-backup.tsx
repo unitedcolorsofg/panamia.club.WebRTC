@@ -178,17 +178,11 @@ function SearchResults({
         </p>
         <p>Select an option below to try out these popular categories!</p>
         <p>
-          <Link href="/directory/search/?q=music">
-            Music
-          </Link>
+          <Link href="/directory/search/?q=music">Music</Link>
           &emsp;
-          <Link href="/directory/search/?q=food">
-            Food
-          </Link>
+          <Link href="/directory/search/?q=food">Food</Link>
           &emsp;
-          <Link href="/directory/search/?q=clothing">
-            Clothing
-          </Link>
+          <Link href="/directory/search/?q=clothing">Clothing</Link>
           &emsp;
         </p>
       </div>
@@ -250,9 +244,8 @@ function SearchResults({
           <div className={styles.cardDetails}>{detailLimit(item.details)}</div>
           <div className={styles.cardActions}>
             <Link href={`/profile/${item.slug}`}>
-
-              <IconUserCircle height="20" />View Profile
-                            
+              <IconUserCircle height="20" />
+              View Profile
             </Link>
             {loggedInUser && (
               <>
@@ -781,9 +774,8 @@ const Directory_Search: NextPage = (props: any) => {
                 <div className={styles.cardActions}>
                   <>
                     <Link href="/form/become-a-pana">
-
-                      <IconForms height="20" />Sign up to see your business listed!
-                                            
+                      <IconForms height="20" />
+                      Sign up to see your business listed!
                     </Link>
                     &emsp;
                   </>
@@ -791,19 +783,15 @@ const Directory_Search: NextPage = (props: any) => {
               </div>
             </article>
             <div className={styles.searchLoginCallout}>
-              <Link href="/signin">
-                Sign Up
-              </Link>{' '}
-              to follow <IconHeart height="20" color="red" fill="red" /> your
-              favorite profiles and get notified about their updates!
+              <Link href="/signin">Sign Up</Link> to follow{' '}
+              <IconHeart height="20" color="red" fill="red" /> your favorite
+              profiles and get notified about their updates!
             </div>
           </section>
           <section className={styles.directoryReferrals}>
             <p>
               Don't see your favorite local spot here?{' '}
-              <Link href="/form/contact-us">
-                Send us a recommendation!
-              </Link>
+              <Link href="/form/contact-us">Send us a recommendation!</Link>
             </p>
           </section>
           <dialog id="dialog-userlists" className={styles.dialogUserlists}>
@@ -845,10 +833,12 @@ const Directory_Search: NextPage = (props: any) => {
               <ul>{userlistElements}</ul>
             </div>
             <div className={styles.dialogFooter}>
-              <Link href="/account/user/lists/" target="_blank" rel="noreferrer">
-                
-                  Edit Lists
-                
+              <Link
+                href="/account/user/lists/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Edit Lists
               </Link>
             </div>
           </dialog>
