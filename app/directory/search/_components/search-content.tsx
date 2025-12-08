@@ -25,6 +25,10 @@ function getSearchParams(searchParams: URLSearchParams) {
   const geolng = searchParams.get('geolng') || null;
   const filterLocations = searchParams.get('floc') || '';
   const filterCategories = searchParams.get('fcat') || '';
+  const mentorsOnly = searchParams.get('mentors') === 'true';
+  const expertise = searchParams.get('expertise') || '';
+  const languages = searchParams.get('lang') || '';
+  const freeOnly = searchParams.get('free') === 'true';
 
   return {
     pageNum,
@@ -35,6 +39,10 @@ function getSearchParams(searchParams: URLSearchParams) {
     filterLocations,
     filterCategories,
     random,
+    mentorsOnly,
+    expertise,
+    languages,
+    freeOnly,
   };
 }
 
@@ -57,10 +65,21 @@ export function DirectorySearchContent() {
     router.push(`/directory/search/?${qs}`);
   };
 
-  const handleApplyFilters = (locations: string[], categories: string[]) => {
+  const handleApplyFilters = (filters: {
+    locations: string[];
+    categories: string[];
+    mentorsOnly: boolean;
+    expertise: string;
+    languages: string;
+    freeOnly: boolean;
+  }) => {
     const newParams = new URLSearchParams(searchParams?.toString() || '');
-    newParams.set('floc', locations.join('+'));
-    newParams.set('fcat', categories.join('+'));
+    newParams.set('floc', filters.locations.join('+'));
+    newParams.set('fcat', filters.categories.join('+'));
+    newParams.set('mentors', filters.mentorsOnly.toString());
+    newParams.set('expertise', filters.expertise);
+    newParams.set('lang', filters.languages);
+    newParams.set('free', filters.freeOnly.toString());
     newParams.set('p', '1'); // Reset to page 1 when filtering
     router.push(`/directory/search/?${newParams}`);
   };
@@ -148,6 +167,10 @@ export function DirectorySearchContent() {
           <SearchFilters
             selectedLocations={selectedLocations}
             selectedCategories={selectedCategories}
+            mentorsOnly={params.mentorsOnly}
+            expertise={params.expertise}
+            languages={params.languages}
+            freeOnly={params.freeOnly}
             onApplyFilters={handleApplyFilters}
           />
         </div>

@@ -54,9 +54,7 @@ const Account_User_Following: NextPage = () => {
             )) || <img src="/img/bg_coconut_blue.jpg" />}
           </div>
           <div className={styles.listCardName}>
-            <Link href={`/profile/${item.slug}`}>
-              {item.name}
-            </Link>
+            <Link href={`/profile/${item.slug}`}>{item.name}</Link>
           </div>
           <div className={styles.listCardAction}>
             <PanaButton

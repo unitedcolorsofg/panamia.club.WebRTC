@@ -12,6 +12,10 @@ interface SearchInterface {
   geolat: string;
   geolng: string;
   resultsView: string;
+  mentorsOnly?: boolean;
+  expertise?: string;
+  languages?: string;
+  freeOnly?: boolean;
 }
 
 const mileInMeters = 1609.344;
@@ -31,6 +35,10 @@ export const getSearch = async ({
   geolat,
   geolng,
   resultsView,
+  mentorsOnly,
+  expertise,
+  languages,
+  freeOnly,
 }: SearchInterface) => {
   const view = resultsView ? resultsView : 'list';
 
@@ -131,6 +139,29 @@ export const getSearch = async ({
       }
     }
 
+    // Mentor filters
+    let mentorFilters: any[] = [];
+    if (mentorsOnly) {
+      mentorFilters.push({
+        equals: { path: 'mentoring.enabled', value: true },
+      });
+    }
+    if (expertise) {
+      mentorFilters.push({
+        text: { query: expertise, path: 'mentoring.expertise' },
+      });
+    }
+    if (languages) {
+      mentorFilters.push({
+        text: { query: languages, path: 'mentoring.languages' },
+      });
+    }
+    if (freeOnly) {
+      mentorFilters.push({
+        range: { path: 'mentoring.hourlyRate', lte: 0 },
+      });
+    }
+
     const skip = pageNum > 1 ? (pageNum - 1) * pageLimit : 0;
     // console.log("skip", skip);
     const aggregateQuery = [
@@ -142,6 +173,7 @@ export const getSearch = async ({
               { equals: { path: 'active', value: true } },
               ...(Object.keys(locsFilter).length !== 0 ? [locsFilter] : []),
               ...(Object.keys(catsFilter).length !== 0 ? [catsFilter] : []),
+              ...mentorFilters,
             ],
             should: [
               {
@@ -201,6 +233,10 @@ export const getSearch = async ({
           'images.primaryCDN': 1,
           'primary_address.city': 1,
           geo: 1,
+          'mentoring.enabled': 1,
+          'mentoring.expertise': 1,
+          'mentoring.languages': 1,
+          'mentoring.hourlyRate': 1,
           score: { $meta: 'searchScore' },
           paginationToken: { $meta: 'searchSequenceToken' },
           meta: '$$SEARCH_META',

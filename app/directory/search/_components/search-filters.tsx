@@ -11,19 +11,35 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Filter, MapPin, Layers } from 'lucide-react';
+import { Filter, MapPin, Layers, GraduationCap } from 'lucide-react';
 import { countyList, profileCategoryList } from '@/lib/lists';
 
 interface SearchFiltersProps {
   selectedLocations: string[];
   selectedCategories: string[];
-  onApplyFilters: (locations: string[], categories: string[]) => void;
+  mentorsOnly: boolean;
+  expertise: string;
+  languages: string;
+  freeOnly: boolean;
+  onApplyFilters: (filters: {
+    locations: string[];
+    categories: string[];
+    mentorsOnly: boolean;
+    expertise: string;
+    languages: string;
+    freeOnly: boolean;
+  }) => void;
 }
 
 export function SearchFilters({
   selectedLocations,
   selectedCategories,
+  mentorsOnly,
+  expertise,
+  languages,
+  freeOnly,
   onApplyFilters,
 }: SearchFiltersProps) {
   const [open, setOpen] = useState(false);
@@ -31,12 +47,27 @@ export function SearchFilters({
     useState<string[]>(selectedLocations);
   const [tempCategories, setTempCategories] =
     useState<string[]>(selectedCategories);
+  const [tempMentorsOnly, setTempMentorsOnly] = useState(mentorsOnly);
+  const [tempExpertise, setTempExpertise] = useState(expertise);
+  const [tempLanguages, setTempLanguages] = useState(languages);
+  const [tempFreeOnly, setTempFreeOnly] = useState(freeOnly);
 
   // Update temp state when props change
   useEffect(() => {
     setTempLocations(selectedLocations);
     setTempCategories(selectedCategories);
-  }, [selectedLocations, selectedCategories]);
+    setTempMentorsOnly(mentorsOnly);
+    setTempExpertise(expertise);
+    setTempLanguages(languages);
+    setTempFreeOnly(freeOnly);
+  }, [
+    selectedLocations,
+    selectedCategories,
+    mentorsOnly,
+    expertise,
+    languages,
+    freeOnly,
+  ]);
 
   const handleLocationToggle = (value: string) => {
     setTempLocations((prev) =>
@@ -51,17 +82,33 @@ export function SearchFilters({
   };
 
   const handleApply = () => {
-    onApplyFilters(tempLocations, tempCategories);
+    onApplyFilters({
+      locations: tempLocations,
+      categories: tempCategories,
+      mentorsOnly: tempMentorsOnly,
+      expertise: tempExpertise,
+      languages: tempLanguages,
+      freeOnly: tempFreeOnly,
+    });
     setOpen(false);
   };
 
   const handleReset = () => {
     setTempLocations([]);
     setTempCategories([]);
+    setTempMentorsOnly(false);
+    setTempExpertise('');
+    setTempLanguages('');
+    setTempFreeOnly(false);
   };
 
   const activeFilterCount =
-    selectedLocations.length + selectedCategories.length;
+    selectedLocations.length +
+    selectedCategories.length +
+    (mentorsOnly ? 1 : 0) +
+    (expertise ? 1 : 0) +
+    (languages ? 1 : 0) +
+    (freeOnly ? 1 : 0);
 
   return (
     <>
@@ -76,64 +123,142 @@ export function SearchFilters({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Filter Search Results</DialogTitle>
             <DialogDescription>
-              Select locations and categories to narrow your search
+              Select locations, categories, and mentor options to narrow your
+              search
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-6 py-4 md:grid-cols-2">
-            {/* Location Filters */}
-            <div className="space-y-3">
+          <div className="space-y-6 py-4">
+            {/* Mentoring Filters */}
+            <div className="space-y-4 rounded-lg border bg-blue-50 p-4 dark:bg-blue-950">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                <Label className="text-base font-semibold">Location</Label>
+                <GraduationCap className="h-5 w-5 text-blue-600" />
+                <Label className="text-base font-semibold">Mentoring</Label>
               </div>
-              <div className="space-y-2">
-                {countyList.map((county) => (
-                  <div key={county.value} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`loc-${county.value}`}
-                      checked={tempLocations.includes(county.value)}
-                      onCheckedChange={() => handleLocationToggle(county.value)}
-                    />
-                    <Label
-                      htmlFor={`loc-${county.value}`}
-                      className="cursor-pointer text-sm font-normal"
-                    >
-                      {county.desc}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Category Filters */}
-            <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Layers className="h-4 w-4" />
-                <Label className="text-base font-semibold">Category</Label>
+                <Checkbox
+                  id="mentors-only"
+                  checked={tempMentorsOnly}
+                  onCheckedChange={(checked) =>
+                    setTempMentorsOnly(checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor="mentors-only"
+                  className="cursor-pointer text-sm font-normal"
+                >
+                  Show mentors only
+                </Label>
               </div>
-              <div className="space-y-2">
-                {profileCategoryList.map((category) => (
-                  <div key={category.value} className="flex items-center gap-2">
+
+              {tempMentorsOnly && (
+                <div className="ml-6 space-y-3 border-l-2 border-blue-200 pl-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="expertise" className="text-sm">
+                      Filter by expertise
+                    </Label>
+                    <Input
+                      id="expertise"
+                      placeholder="e.g., Marketing, Design..."
+                      value={tempExpertise}
+                      onChange={(e) => setTempExpertise(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="languages" className="text-sm">
+                      Filter by languages
+                    </Label>
+                    <Input
+                      id="languages"
+                      placeholder="e.g., English, Spanish..."
+                      value={tempLanguages}
+                      onChange={(e) => setTempLanguages(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <Checkbox
-                      id={`cat-${category.value}`}
-                      checked={tempCategories.includes(category.value)}
-                      onCheckedChange={() =>
-                        handleCategoryToggle(category.value)
+                      id="free-only"
+                      checked={tempFreeOnly}
+                      onCheckedChange={(checked) =>
+                        setTempFreeOnly(checked as boolean)
                       }
                     />
                     <Label
-                      htmlFor={`cat-${category.value}`}
+                      htmlFor="free-only"
                       className="cursor-pointer text-sm font-normal"
                     >
-                      {category.desc}
+                      Free mentoring only
                     </Label>
                   </div>
-                ))}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t"></div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Location Filters */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  <Label className="text-base font-semibold">Location</Label>
+                </div>
+                <div className="space-y-2">
+                  {countyList.map((county) => (
+                    <div key={county.value} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`loc-${county.value}`}
+                        checked={tempLocations.includes(county.value)}
+                        onCheckedChange={() =>
+                          handleLocationToggle(county.value)
+                        }
+                      />
+                      <Label
+                        htmlFor={`loc-${county.value}`}
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {county.desc}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Filters */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Layers className="h-4 w-4" />
+                  <Label className="text-base font-semibold">Category</Label>
+                </div>
+                <div className="space-y-2">
+                  {profileCategoryList.map((category) => (
+                    <div
+                      key={category.value}
+                      className="flex items-center gap-2"
+                    >
+                      <Checkbox
+                        id={`cat-${category.value}`}
+                        checked={tempCategories.includes(category.value)}
+                        onCheckedChange={() =>
+                          handleCategoryToggle(category.value)
+                        }
+                      />
+                      <Label
+                        htmlFor={`cat-${category.value}`}
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {category.desc}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

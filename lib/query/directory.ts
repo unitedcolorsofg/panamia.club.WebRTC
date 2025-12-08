@@ -10,6 +10,10 @@ interface SearchInterface {
   random: number;
   geolat: number;
   geolng: number;
+  mentorsOnly?: boolean;
+  expertise?: string;
+  languages?: string;
+  freeOnly?: boolean;
 }
 
 export interface SearchResultsInterface {
@@ -40,6 +44,18 @@ export const searchParamsToString = (params: SearchInterface) => {
   }
   if (params.pageLimit !== 20) {
     qs.append('limit', params.pageLimit.toString());
+  }
+  if (params.mentorsOnly) {
+    qs.append('mentors', 'true');
+  }
+  if (params.expertise) {
+    qs.append('expertise', params.expertise);
+  }
+  if (params.languages) {
+    qs.append('lang', params.languages);
+  }
+  if (params.freeOnly) {
+    qs.append('free', 'true');
   }
   return `${qs}`;
 };
