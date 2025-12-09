@@ -1,0 +1,121 @@
+// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { NextRequest, NextResponse } from 'next/server';
+
+import dbConnect from '@/lib/connectdb';
+import profile from '@/lib/model/profile';
+import BrevoApi from '@/lib/brevo_api';
+
+import { getBrevoConfig } from '@/config/brevo';
+
+interface ResponseData {
+  error?: string;
+  success?: boolean;
+  msg?: string;
+  data?: any[];
+}
+
+const getProfileByEmail = async (email: string) => {
+  await dbConnect();
+  const Profile = await profile.findOne({ email: email });
+  return Profile;
+};
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const { email } = body;
+  if (!email) {
+    return NextResponse.json(
+      { success: false, error: 'No valid email' },
+      { status: 200 }
+    );
+  }
+
+  const existingProfile = await getProfileByEmail(email);
+  const brevo_config = getBrevoConfig();
+  const template_id = brevo_config.templates.admin.profile_submission;
+  if (template_id === 0) {
+    return NextResponse.json(
+      { success: false, error: 'No Template ID' },
+      { status: 200 }
+    );
+  }
+  if (existingProfile) {
+    if (existingProfile.active === false) {
+      // send Brevo template email
+      const brevo = new BrevoApi();
+      const brevo_config = getBrevoConfig();
+      const accessKey = existingProfile?.status?.access;
+      const base_action_url = `${process.env.HOST_URL}/admin/profile/action`;
+      const approve_url = new URL(`${base_action_url}`);
+      approve_url.searchParams.set('email', existingProfile.email);
+      approve_url.searchParams.set('access', accessKey);
+      approve_url.searchParams.set('action', 'approve');
+
+      const decline_url = new URL(`${base_action_url}`);
+      decline_url.searchParams.set('email', existingProfile.email);
+      decline_url.searchParams.set('access', accessKey);
+      decline_url.searchParams.set('action', 'decline');
+      const promises = [];
+      if (brevo_config.templates.admin.profile_submission) {
+        const params_admin = {
+          name: existingProfile.name,
+          email: existingProfile.email,
+          details: existingProfile.details,
+          phone_number: existingProfile.phone_number,
+          five_words: existingProfile.five_words,
+          tags: existingProfile.tags,
+          socials_website: existingProfile?.socials?.website
+            ? existingProfile.socials.website
+            : 'n/a',
+          socials_instagram: existingProfile?.socials?.instagram
+            ? existingProfile.socials.instagram
+            : 'n/a',
+          socials_facebook: existingProfile?.socials?.facebook
+            ? existingProfile.socials.facebook
+            : 'n/a',
+          socials_tiktok: existingProfile?.socials?.tiktok
+            ? existingProfile.socials.tiktok
+            : 'n/a',
+          socials_twitter: existingProfile?.socials?.twitter
+            ? existingProfile.socials.twitter
+            : 'n/a',
+          socials_spotify: existingProfile?.socials?.spotify
+            ? existingProfile.socials.spotify
+            : 'n/a',
+          hearaboutus: existingProfile.hearaboutus,
+          affiliate: existingProfile?.affiliate
+            ? existingProfile.affiliate
+            : 'n/a',
+          approve_url: approve_url.toString(),
+          decline_url: decline_url.toString(),
+        };
+        promises.push(
+          brevo.sendTemplateEmail(
+            brevo_config.templates.admin.profile_submission,
+            params_admin
+          )
+        );
+      }
+      if (brevo_config.templates.profile.submitted) {
+        const params_submitted = {
+          name: existingProfile.name,
+        };
+        promises.push(
+          brevo.sendTemplateEmail(
+            brevo_config.templates.profile.submitted,
+            params_submitted,
+            existingProfile.email
+          )
+        );
+      }
+      await Promise.all(promises);
+      // TODO: Confirm 201 responses from Brevo
+      return NextResponse.json({ success: true, data: [] }, { status: 200 });
+    }
+    return NextResponse.json({
+      success: false,
+      error: 'Profile already active',
+    });
+  }
+  return NextResponse.json({ success: false, error: 'Could not find pofile' });
+}
