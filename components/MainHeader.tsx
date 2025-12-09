@@ -14,6 +14,31 @@ import {
   IconPlaylistAdd,
 } from '@tabler/icons';
 import axios from 'axios';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import {
+  ChevronDown,
+  Home,
+  Search,
+  UserCircle,
+  User,
+  Heart,
+  List,
+  Compass,
+  Video,
+  Users,
+  Shield,
+  Info,
+  Gift,
+  LogOut,
+} from 'lucide-react';
 
 import styles from './MainHeader.module.css';
 import CallToActionBar from './CallToActionBar';
@@ -53,6 +78,22 @@ export default function MainHeader() {
   const [menu_active, setMenuActive] = useState(false);
   const activeClasses = classNames(styles.navList, styles.navListActive);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check admin status
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetch('/api/admin/checkAdminStatus', {
+        headers: { Accept: 'application/json' },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.success && data?.data?.admin_status) {
+            setIsAdmin(true);
+          }
+        })
+        .catch((err) => console.error('Admin check failed:', err));
+    }
+  }, [session]);
 
   interface NavStyle {
     padding?: string;
@@ -169,8 +210,157 @@ export default function MainHeader() {
 
   return (
     <header className={styles.header}>
-      <div id="call-to-action-bar">
-        <CallToActionBar />
+      {/* Only show newsletter signup for unauthenticated users */}
+      {status !== 'loading' && !session && (
+        <div id="call-to-action-bar">
+          <CallToActionBar />
+        </div>
+      )}
+      {/* Top-right navigation buttons */}
+      <div className="fixed right-4 top-4 z-50 flex gap-2">
+        {status !== 'loading' && session && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="default" variant="outline">
+                Jump To
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <Link href="/" className="flex cursor-pointer items-center">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/directory/search"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  Directory Search
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/account/profile/edit"
+                  className="flex cursor-pointer items-center"
+                >
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  My Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/account/user/edit"
+                  className="flex cursor-pointer items-center"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Account Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/account/user/following"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  Following
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/account/user/lists"
+                  className="flex cursor-pointer items-center"
+                >
+                  <List className="mr-2 h-4 w-4" />
+                  My Lists
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Mentoring</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/mentoring/discover"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Discover Mentors
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/mentoring/profile/edit"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Compass className="mr-2 h-4 w-4" />
+                  Mentor Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/mentoring/schedule"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Video className="mr-2 h-4 w-4" />
+                  My Sessions
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Community</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/about-us"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Info className="mr-2 h-4 w-4" />
+                  About Pana Mia
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/donate"
+                  className="flex cursor-pointer items-center"
+                >
+                  <Gift className="mr-2 h-4 w-4" />
+                  Support Us
+                </Link>
+              </DropdownMenuItem>
+
+              {isAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/account/admin/users"
+                      className="flex cursor-pointer items-center"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      Admin Panel
+                    </Link>
+                  </DropdownMenuItem>
+                </>
+              )}
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="flex cursor-pointer items-center"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        <ThemeToggle />
       </div>
     </header>
   );

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -20,14 +19,11 @@ import {
 } from '@/components/ui/accordion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Users, Calendar, MessageCircle } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { Search, Calendar, MessageCircle } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const [searchQuery, setSearchQuery] = useState('');
-  const isLoading = status === 'loading';
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,26 +50,6 @@ export default function HomePage() {
         className="relative bg-cover bg-center py-8 text-center md:py-12"
         style={{ backgroundImage: 'url(/img/home/website_banner.jpg)' }}
       >
-        {/* Auth Buttons & Theme Toggle - Top Right */}
-        <div className="absolute right-4 top-4 z-10 flex gap-2">
-          {!isLoading && !session && (
-            <>
-              <Button size="default" asChild variant="outline">
-                <Link href="/api/auth/signin">Log In</Link>
-              </Button>
-              <Button size="default" asChild variant="outline">
-                <Link href="/form/become-a-pana">Become A Pana</Link>
-              </Button>
-            </>
-          )}
-          {!isLoading && session && (
-            <Button size="default" asChild variant="outline">
-              <Link href="/account/user">My Account</Link>
-            </Button>
-          )}
-          <ThemeToggle />
-        </div>
-
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-[90vw] space-y-8">
             {/* Logo */}
