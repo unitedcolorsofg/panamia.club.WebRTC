@@ -4,7 +4,7 @@
 
 import dbConnect from './connectdb.js';
 import mongoose from 'mongoose';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import * as fs from 'fs';
 
 let errors = [];
@@ -152,14 +152,29 @@ async function handler(profileData) {
     });
 }
 
-function getUsersFromFile() {
+async function getUsersFromFile() {
   const file = 'scripts/users.xlsx';
   let newJsonArray = [];
-  XLSX.set_fs(fs);
 
-  const workbook = XLSX.readFile(file);
-  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  const json = XLSX.utils.sheet_to_json(worksheet);
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(file);
+  const worksheet = workbook.worksheets[0];
+
+  // Convert worksheet to JSON (similar to XLSX.utils.sheet_to_json)
+  const json = [];
+  const headers = [];
+  worksheet.getRow(1).eachCell((cell, colNumber) => {
+    headers[colNumber] = cell.value;
+  });
+
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return; // Skip header row
+    const rowData = {};
+    row.eachCell((cell, colNumber) => {
+      rowData[headers[colNumber]] = cell.value;
+    });
+    json.push(rowData);
+  });
 
   json.forEach((item) => {
     if (item.email == 'lavitatreats@gmail.com') {
@@ -260,7 +275,7 @@ const processUsers = async (users) => {
 
 await dbConnect();
 let cntr = 0;
-const users = getUsersFromFile();
+const users = await getUsersFromFile();
 await processUsers(users);
 
 // process.exit();

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,56 +40,66 @@ export default function ExcelImportPage() {
     console.log(res);
   }
 
-  const handleConvert = () => {
+  const handleConvert = async () => {
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const data = e.target.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        if (!sheetName) {
-          console.error('No sheets found in workbook');
-          return;
-        }
-        const worksheet = workbook.Sheets[sheetName];
-        if (!worksheet) {
-          console.error('Sheet not found');
-          return;
-        }
-        const json = XLSX.utils.sheet_to_json(worksheet);
-        setJsonData(JSON.stringify(json, null, 2));
-        console.log(json);
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(arrayBuffer);
 
-        let newJsonArray = [{}];
-        json.forEach((item: any) => {
-          const socials = {
-            website: item.website,
-            facebook: item.facebook,
-            instagram: item.instagram,
-            tiktok: item.tiktok,
-            twitter: item.twitter,
-            spotify: item.spotify,
-          };
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet) {
+        console.error('No worksheets found in workbook');
+        return;
+      }
 
-          const newItem = {
-            background: item.background,
-            details: item.details,
-            email: item.email,
-            five_words: item.five_words,
-            name: item.name,
-            tags: item.tags,
-            slug: item.name.toString().toLowerCase().replace(' ', '_'),
-            phone_number: item.phone_number,
-            createdAt: new Date(item.date_added.toString()),
-          };
+      // Convert worksheet to JSON (similar to XLSX.utils.sheet_to_json)
+      const json: any[] = [];
+      const headers: any[] = [];
 
-          newJsonArray.push(newItem);
+      worksheet.getRow(1).eachCell((cell: any, colNumber: number) => {
+        headers[colNumber] = cell.value;
+      });
+
+      worksheet.eachRow((row: any, rowNumber: number) => {
+        if (rowNumber === 1) return; // Skip header row
+        const rowData: any = {};
+        row.eachCell((cell: any, colNumber: number) => {
+          rowData[headers[colNumber]] = cell.value;
         });
+        json.push(rowData);
+      });
 
-        console.log('new formatted Json array');
-        console.log(newJsonArray);
-      };
-      reader.readAsBinaryString(file);
+      setJsonData(JSON.stringify(json, null, 2));
+      console.log(json);
+
+      let newJsonArray = [{}];
+      json.forEach((item: any) => {
+        const socials = {
+          website: item.website,
+          facebook: item.facebook,
+          instagram: item.instagram,
+          tiktok: item.tiktok,
+          twitter: item.twitter,
+          spotify: item.spotify,
+        };
+
+        const newItem = {
+          background: item.background,
+          details: item.details,
+          email: item.email,
+          five_words: item.five_words,
+          name: item.name,
+          tags: item.tags,
+          slug: item.name.toString().toLowerCase().replace(' ', '_'),
+          phone_number: item.phone_number,
+          createdAt: new Date(item.date_added.toString()),
+        };
+
+        newJsonArray.push(newItem);
+      });
+
+      console.log('new formatted Json array');
+      console.log(newJsonArray);
     }
   };
 
@@ -124,7 +134,7 @@ export default function ExcelImportPage() {
 
             {jsonData && (
               <div className="space-y-4">
-                <div className="rounded-lg bg-muted p-4">
+                <div className="bg-muted rounded-lg p-4">
                   <h3 className="mb-2 font-semibold">Preview:</h3>
                   <pre className="max-h-96 overflow-auto text-xs">
                     {jsonData}
