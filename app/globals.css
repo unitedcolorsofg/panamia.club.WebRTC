@@ -118,42 +118,43 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-rubik), sans-serif;
   }
+}
 
-  /* Ensure buttons and inputs have solid backgrounds */
-  button, input, textarea, select {
-    background-color: hsl(var(--background));
-  }
+/* Fix transparency issues - placed outside @layer for higher specificity */
+button, input, textarea, select {
+  background-color: hsl(var(--background)) !important;
+}
 
-  /* Fix outline button variant to have solid background */
-  .bg-background {
-    background-color: hsl(var(--background)) !important;
-  }
+.bg-background {
+  background-color: hsl(var(--background)) !important;
+  opacity: 1 !important;
+}
 
-  /* Fix popover/dropdown backgrounds to be solid */
-  .bg-popover {
-    background-color: hsl(var(--popover)) !important;
-  }
+.bg-popover {
+  background-color: hsl(var(--popover)) !important;
+  opacity: 1 !important;
+}
 
-  /* Ensure card backgrounds are solid */
-  .bg-card {
-    background-color: hsl(var(--card)) !important;
-  }
+.bg-card {
+  background-color: hsl(var(--card)) !important;
+  opacity: 1 !important;
+}
 
-  /* Ensure proper contrast for form elements */
-  input, textarea, select {
-    color: hsl(var(--foreground));
-  }
+.bg-primary {
+  background-color: hsl(var(--primary)) !important;
+  opacity: 1 !important;
+}
 
-  /* Fix any primary/secondary/accent backgrounds */
-  .bg-primary {
-    background-color: hsl(var(--primary)) !important;
-  }
+.bg-secondary {
+  background-color: hsl(var(--secondary)) !important;
+  opacity: 1 !important;
+}
 
-  .bg-secondary {
-    background-color: hsl(var(--secondary)) !important;
-  }
+.bg-accent {
+  background-color: hsl(var(--accent)) !important;
+  opacity: 1 !important;
+}
 
-  .bg-accent {
-    background-color: hsl(var(--accent)) !important;
-  }
+input, textarea, select {
+  color: hsl(var(--foreground)) !important;
 }
