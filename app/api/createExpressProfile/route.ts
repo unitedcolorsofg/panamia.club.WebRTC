@@ -9,6 +9,48 @@ const validateEmail = (email: string): boolean => {
   return regEx.test(email);
 };
 
+const verifyRecaptcha = async (token: string): Promise<boolean> => {
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+
+  if (!secretKey) {
+    console.error('RECAPTCHA_SECRET_KEY is not configured');
+    return false;
+  }
+
+  try {
+    const response = await fetch(
+      'https://www.google.com/recaptcha/api/siteverify',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `secret=${secretKey}&response=${token}`,
+      }
+    );
+
+    const data = await response.json();
+
+    // reCAPTCHA v3 returns a score from 0.0 to 1.0
+    // Recommended threshold is 0.5
+    if (data.success && data.score >= 0.5) {
+      return true;
+    }
+
+    console.warn('reCAPTCHA verification failed:', {
+      success: data.success,
+      score: data.score,
+      action: data.action,
+      errors: data['error-codes'],
+    });
+
+    return false;
+  } catch (error) {
+    console.error('reCAPTCHA verification error:', error);
+    return false;
+  }
+};
+
 const callBrevo_createContact = async (email: string, name: string) => {
   const brevo = new BrevoApi();
 
@@ -51,23 +93,49 @@ export async function POST(request: NextRequest) {
     tags,
     hearaboutus,
     affiliate,
+    recaptchaToken,
   } = body;
 
-  console.log('createExpressProfile', {
-    name,
-    email,
-    locally_based,
-    details,
-    background,
-    socials,
-    phone_number,
-    whatsapp_community,
-    pronouns,
-    five_words,
-    tags,
-    hearaboutus,
-    affiliate,
-  });
+  // Validate required fields
+  if (!name || typeof name !== 'string' || name.trim().length < 2) {
+    return NextResponse.json(
+      { error: 'Please enter a valid business/project name.' },
+      { status: 400 }
+    );
+  }
+
+  if (!validateEmail(email)) {
+    return NextResponse.json(
+      { error: 'Please enter a valid email address.' },
+      { status: 400 }
+    );
+  }
+
+  if (!socials?.website || socials.website.trim().length < 5) {
+    return NextResponse.json(
+      { error: 'Please provide your website URL.' },
+      { status: 400 }
+    );
+  }
+
+  // Verify reCAPTCHA (all users must pass this for spam protection)
+  if (!recaptchaToken) {
+    return NextResponse.json(
+      { error: 'reCAPTCHA verification required.' },
+      { status: 400 }
+    );
+  }
+
+  const isValidRecaptcha = await verifyRecaptcha(recaptchaToken);
+  if (!isValidRecaptcha) {
+    return NextResponse.json(
+      {
+        error:
+          'reCAPTCHA verification failed. Please try again or contact us at hola@panamia.club',
+      },
+      { status: 400 }
+    );
+  }
 
   await dbConnect();
   const existingProfile = await profile.findOne({ email: email });
@@ -75,14 +143,7 @@ export async function POST(request: NextRequest) {
   if (existingProfile) {
     return NextResponse.json(
       { error: 'This email is already being used for a profile.' },
-      { status: 200 }
-    );
-  }
-
-  if (!validateEmail(email)) {
-    return NextResponse.json(
-      { error: 'Please enter a valid email address.' },
-      { status: 200 }
+      { status: 400 }
     );
   }
 
@@ -113,19 +174,29 @@ export async function POST(request: NextRequest) {
   );
 
   try {
-    const dbResponse = await newProfile.save();
+    await newProfile.save();
   } catch (error) {
+    console.error('Database error saving profile:', error);
     return NextResponse.json(
-      { error: "Error on '/api/createExpressProfile': " + error },
-      { status: 400 }
+      {
+        error:
+          'There was an error saving your profile. Please contact us at hola@panamia.club',
+      },
+      { status: 500 }
     );
   }
-  const promise = await Promise.allSettled([
-    callBrevo_createContact(email, name),
-  ]);
-  return NextResponse.json({
-    msg: 'Successfuly created new Profile: ' + newProfile.email,
-  });
+
+  // Add to Brevo (don't await, run in background)
+  Promise.allSettled([callBrevo_createContact(email, name)]).catch((err) =>
+    console.error('Brevo error:', err)
+  );
+
+  return NextResponse.json(
+    {
+      msg: 'Your profile has been submitted for review! Check your email for next steps.',
+    },
+    { status: 200 }
+  );
 }
 
 export const maxDuration = 5;

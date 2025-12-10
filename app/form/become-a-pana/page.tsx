@@ -1,6 +1,12 @@
 'use client';
 
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef, FormEvent, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import {
+  GoogleReCaptchaProvider,
+  useGoogleReCaptcha,
+} from 'react-google-recaptcha-v3';
 import axios from 'axios';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,9 +18,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { Shield } from 'lucide-react';
 
-export default function BecomeAPanaForm() {
+function BecomeAPanaForm() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const { toast } = useToast();
   const [activePage, setActivePage] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
   const [email, setEmail] = useState('');
@@ -50,7 +63,57 @@ export default function BecomeAPanaForm() {
   const page7Ref = useRef<HTMLDivElement>(null);
   const confirmationRef = useRef<HTMLDivElement>(null);
 
-  const createExpressProfile = async () => {
+  // Redirect authenticated users to their account page
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.email) {
+      toast({
+        title: 'Already Registered',
+        description:
+          'You already have an account. Redirecting to your profile...',
+      });
+      setTimeout(() => {
+        router.push('/account/user');
+      }, 2000);
+    }
+  }, [status, session, router, toast]);
+
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render form for authenticated users
+  if (status === 'authenticated') {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="p-6 text-center">
+            <h2 className="mb-4 text-2xl font-bold">Already Registered</h2>
+            <p className="mb-4">
+              You already have an account with us. Redirecting you to your
+              profile...
+            </p>
+            <Link href="/account/user">
+              <Button>Go to My Account</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const validateEmail = (email: string): boolean => {
+    const regEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return regEx.test(email);
+  };
+
+  const createExpressProfile = async (recaptchaToken?: string) => {
     const socials = {
       website: socialsWebsite,
       instagram: socialsInstagram,
@@ -84,6 +147,7 @@ export default function BecomeAPanaForm() {
           tags: tags,
           hearaboutus: hearAboutUs,
           affiliate: null,
+          recaptchaToken: recaptchaToken,
         },
         {
           headers: {
@@ -93,33 +157,89 @@ export default function BecomeAPanaForm() {
         }
       )
       .catch((error) => {
-        console.log(error);
-        alert('There was a problem submitting the form, please contact us.');
-        return null;
+        console.error('Express profile submission error:', error);
+        throw error;
       });
     return response;
   };
 
   function validateExpressProfile() {
-    if (email.length < 5) {
-      alert('Please enter a valid email address.');
+    if (!name || name.trim().length < 2) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Name',
+        description: 'Please enter a business/project name.',
+      });
       return false;
     }
+
+    if (!validateEmail(email)) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Email',
+        description: 'Please enter a valid email address.',
+      });
+      return false;
+    }
+
+    if (!socialsWebsite || socialsWebsite.trim().length < 5) {
+      toast({
+        variant: 'destructive',
+        title: 'Website Required',
+        description: 'Please provide your website URL.',
+      });
+      return false;
+    }
+
+    if (!agreeTos) {
+      toast({
+        variant: 'destructive',
+        title: 'Terms Required',
+        description: 'You must agree to the Terms & Conditions.',
+      });
+      return false;
+    }
+
     return true;
   }
 
   async function submitExpressProfile(e: FormEvent) {
     e.preventDefault();
-    if (validateExpressProfile()) {
-      const response = await createExpressProfile();
-      if (response) {
-        if (response.data.error) {
-          alert(response.data.error);
-        } else {
-          console.log(response.data.msg);
-          setActivePage(8);
-          confirmationRef.current?.scrollIntoView({ behavior: 'smooth' });
-          await axios.post(
+
+    if (!validateExpressProfile()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Generate reCAPTCHA token for spam protection
+      if (!executeRecaptcha) {
+        toast({
+          variant: 'destructive',
+          title: 'Security Error',
+          description: 'reCAPTCHA not ready. Please try again.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const recaptchaToken = await executeRecaptcha('become_pana_submit');
+      const response = await createExpressProfile(recaptchaToken);
+
+      if (response?.data?.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Submission Failed',
+          description: response.data.error,
+        });
+      } else {
+        setActivePage(8);
+        confirmationRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+        // Send submission confirmation email (non-blocking)
+        axios
+          .post(
             '/api/profile/sendSubmission',
             { email: email },
             {
@@ -128,9 +248,24 @@ export default function BecomeAPanaForm() {
                 'Content-Type': 'application/json',
               },
             }
-          );
-        }
+          )
+          .catch((err) => console.error('Email send error:', err));
+
+        toast({
+          title: 'Success!',
+          description:
+            'Your profile has been submitted for review. Check your email for next steps.',
+        });
       }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Submission Error',
+        description:
+          'There was a problem submitting the form. Please contact us at hola@panamia.club',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -194,13 +329,21 @@ export default function BecomeAPanaForm() {
             Directory Express Sign Up Form
           </h1>
 
+          {/* reCAPTCHA Notice */}
+          <div className="bg-muted text-muted-foreground flex items-center gap-2 rounded-md p-3 text-sm">
+            <Shield className="h-4 w-4 flex-shrink-0" />
+            <span>
+              This form is protected by reCAPTCHA to prevent spam submissions.
+            </span>
+          </div>
+
           <Card>
             <CardContent className="p-6 md:p-8">
               {/* Progress Bar */}
               {activePage < 8 && (
                 <div className="mb-8">
                   <Progress value={progress} className="h-2" />
-                  <p className="mt-2 text-center text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-2 text-center text-sm">
                     Page {activePage} of 7
                   </p>
                 </div>
@@ -261,7 +404,7 @@ export default function BecomeAPanaForm() {
                         Are you (the creator, director, owner, CEO)
                         locally-based or a native of South Florida? *
                       </Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         South Florida is Miami-Dade, Broward and Palm Beach
                         County
                       </p>
@@ -318,6 +461,9 @@ export default function BecomeAPanaForm() {
                 </div>
               )}
 
+              {/* Continue with pages 3-7... (keeping them the same but with disabled={isSubmitting} on all inputs) */}
+              {/* For brevity, I'll include the key pages with disabled states */}
+
               {/* Page 3: Basic Info */}
               {activePage === 3 && (
                 <div ref={page3Ref}>
@@ -334,8 +480,9 @@ export default function BecomeAPanaForm() {
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        disabled={isSubmitting}
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         This name will display as the Title of your profile
                       </p>
                     </div>
@@ -350,8 +497,9 @@ export default function BecomeAPanaForm() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        disabled={isSubmitting}
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         The email that will be used for signing in, not
                         displayed on profile
                       </p>
@@ -366,8 +514,9 @@ export default function BecomeAPanaForm() {
                         placeholder="(###) ###-####"
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
+                        disabled={isSubmitting}
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         Used for contacting you, not displayed on profile
                       </p>
                       <div className="flex items-center space-x-2 pt-2">
@@ -377,6 +526,7 @@ export default function BecomeAPanaForm() {
                           onCheckedChange={(checked) =>
                             setWhatsappCommunity(checked as boolean)
                           }
+                          disabled={isSubmitting}
                         />
                         <Label htmlFor="whatsapp">
                           I'm interested in joining the WhatsApp community
@@ -393,12 +543,14 @@ export default function BecomeAPanaForm() {
                           setActivePage(2);
                           scrollToPage(2);
                         }}
+                        disabled={isSubmitting}
                       >
                         Previous
                       </Button>
                       <Button
                         type="submit"
                         className="bg-pana-pink hover:bg-pana-pink/90"
+                        disabled={isSubmitting}
                       >
                         Next
                       </Button>
@@ -415,7 +567,7 @@ export default function BecomeAPanaForm() {
                       <Label className="text-lg font-bold">
                         What are your preferred pronouns?
                       </Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         If you are an Individual (not representing a group or
                         org)
                       </p>
@@ -427,6 +579,7 @@ export default function BecomeAPanaForm() {
                             onCheckedChange={(checked) =>
                               setPronounsSheher(checked as boolean)
                             }
+                            disabled={isSubmitting}
                           />
                           <Label htmlFor="sheher">She/Her</Label>
                         </div>
@@ -437,6 +590,7 @@ export default function BecomeAPanaForm() {
                             onCheckedChange={(checked) =>
                               setPronounsHehim(checked as boolean)
                             }
+                            disabled={isSubmitting}
                           />
                           <Label htmlFor="hehim">He/Him</Label>
                         </div>
@@ -447,6 +601,7 @@ export default function BecomeAPanaForm() {
                             onCheckedChange={(checked) =>
                               setPronounsTheythem(checked as boolean)
                             }
+                            disabled={isSubmitting}
                           />
                           <Label htmlFor="theythem">They/Them</Label>
                         </div>
@@ -457,6 +612,7 @@ export default function BecomeAPanaForm() {
                             onCheckedChange={(checked) =>
                               setPronounsNone(checked as boolean)
                             }
+                            disabled={isSubmitting}
                           />
                           <Label htmlFor="none">No Preference</Label>
                         </div>
@@ -468,6 +624,7 @@ export default function BecomeAPanaForm() {
                               onCheckedChange={(checked) =>
                                 setPronounsOther(checked as boolean)
                               }
+                              disabled={isSubmitting}
                             />
                             <Label htmlFor="other-pronoun">Other:</Label>
                           </div>
@@ -480,6 +637,7 @@ export default function BecomeAPanaForm() {
                                 setPronounsOtherdesc(e.target.value)
                               }
                               className="ml-6"
+                              disabled={isSubmitting}
                             />
                           )}
                         </div>
@@ -493,6 +651,7 @@ export default function BecomeAPanaForm() {
                           setActivePage(3);
                           scrollToPage(3);
                         }}
+                        disabled={isSubmitting}
                       >
                         Previous
                       </Button>
@@ -502,6 +661,7 @@ export default function BecomeAPanaForm() {
                           setActivePage(5);
                           scrollToPage(5);
                         }}
+                        disabled={isSubmitting}
                       >
                         Next/Skip
                       </Button>
@@ -526,8 +686,9 @@ export default function BecomeAPanaForm() {
                         rows={4}
                         value={details}
                         onChange={(e) => setDetails(e.target.value)}
+                        disabled={isSubmitting}
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         This will be your intro to our users! A trimmed snippet
                         of this will show on the Directory Search. Please
                         include where you are based in SoFlo :)
@@ -546,6 +707,7 @@ export default function BecomeAPanaForm() {
                         required
                         value={fiveWords}
                         onChange={(e) => setFiveWords(e.target.value)}
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -560,8 +722,9 @@ export default function BecomeAPanaForm() {
                         maxLength={250}
                         value={tags}
                         onChange={(e) => setTags(e.target.value)}
+                        disabled={isSubmitting}
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         Example (The Dancing Elephant): Spiritual/Metaphysical,
                         Books, Bookstore, Retail Shop
                       </p>
@@ -575,12 +738,14 @@ export default function BecomeAPanaForm() {
                           setActivePage(4);
                           scrollToPage(4);
                         }}
+                        disabled={isSubmitting}
                       >
                         Previous
                       </Button>
                       <Button
                         type="submit"
                         className="bg-pana-pink hover:bg-pana-pink/90"
+                        disabled={isSubmitting}
                       >
                         Next
                       </Button>
@@ -597,7 +762,7 @@ export default function BecomeAPanaForm() {
                       <Label className="text-lg font-bold">
                         Website and Social Media
                       </Label>
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="text-muted-foreground mt-1 text-sm">
                         These will be displayed on your profile, please use the
                         full URL for each
                       </p>
@@ -613,6 +778,7 @@ export default function BecomeAPanaForm() {
                           placeholder="https://www.example-pana.com"
                           value={socialsWebsite}
                           onChange={(e) => setSocialsWebsite(e.target.value)}
+                          disabled={isSubmitting}
                         />
                       </div>
 
@@ -624,6 +790,7 @@ export default function BecomeAPanaForm() {
                           placeholder="https://www.instagram.com/example-pana/"
                           value={socialsInstagram}
                           onChange={(e) => setSocialsInstagram(e.target.value)}
+                          disabled={isSubmitting}
                         />
                       </div>
 
@@ -635,6 +802,7 @@ export default function BecomeAPanaForm() {
                           placeholder="https://www.facebook.com/example-pana/"
                           value={socialsFacebook}
                           onChange={(e) => setSocialsFacebook(e.target.value)}
+                          disabled={isSubmitting}
                         />
                       </div>
 
@@ -646,6 +814,7 @@ export default function BecomeAPanaForm() {
                           placeholder="https://www.spotify.com/@example-pana"
                           value={socialsSpotify}
                           onChange={(e) => setSocialsSpotify(e.target.value)}
+                          disabled={isSubmitting}
                         />
                       </div>
 
@@ -657,6 +826,7 @@ export default function BecomeAPanaForm() {
                           placeholder="https://www.tiktok.com/@example-pana"
                           value={socialsTiktok}
                           onChange={(e) => setSocialsTiktok(e.target.value)}
+                          disabled={isSubmitting}
                         />
                       </div>
 
@@ -668,6 +838,7 @@ export default function BecomeAPanaForm() {
                           placeholder="https://twitter.com/example-pana"
                           value={socialsTwitter}
                           onChange={(e) => setSocialsTwitter(e.target.value)}
+                          disabled={isSubmitting}
                         />
                       </div>
                     </div>
@@ -680,6 +851,7 @@ export default function BecomeAPanaForm() {
                           setActivePage(5);
                           scrollToPage(5);
                         }}
+                        disabled={isSubmitting}
                       >
                         Previous
                       </Button>
@@ -689,6 +861,7 @@ export default function BecomeAPanaForm() {
                           setActivePage(7);
                           scrollToPage(7);
                         }}
+                        disabled={isSubmitting}
                       >
                         Next
                       </Button>
@@ -711,6 +884,7 @@ export default function BecomeAPanaForm() {
                         rows={4}
                         value={hearAboutUs}
                         onChange={(e) => setHearAboutUs(e.target.value)}
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -736,6 +910,7 @@ export default function BecomeAPanaForm() {
                             setAgreeTos(checked as boolean)
                           }
                           required
+                          disabled={isSubmitting}
                         />
                         <Label htmlFor="tos">
                           I agree to the Terms & Conditions *
@@ -751,14 +926,16 @@ export default function BecomeAPanaForm() {
                           setActivePage(6);
                           scrollToPage(6);
                         }}
+                        disabled={isSubmitting}
                       >
                         Previous
                       </Button>
                       <Button
                         type="submit"
                         className="bg-pana-pink hover:bg-pana-pink/90"
+                        disabled={isSubmitting}
                       >
-                        Submit Form
+                        {isSubmitting ? 'Submitting...' : 'Submit Form'}
                       </Button>
                     </div>
                   </form>
@@ -768,7 +945,7 @@ export default function BecomeAPanaForm() {
               {/* Page 8: Confirmation */}
               {activePage === 8 && (
                 <div ref={confirmationRef} className="space-y-6 text-center">
-                  <h2 className="text-3xl font-bold text-pana-pink">
+                  <h2 className="text-pana-pink text-3xl font-bold">
                     Thank you for signing up!
                   </h2>
                   <div className="space-y-4 text-lg">
@@ -782,7 +959,7 @@ export default function BecomeAPanaForm() {
                         href="/api/auth/signin"
                         className="text-pana-blue underline"
                       >
-                        Sign Up
+                        Sign In
                       </Link>{' '}
                       using your profile email to see other features and
                       continue updating your profile! The Pana MIA Club
@@ -802,7 +979,7 @@ export default function BecomeAPanaForm() {
           </Card>
 
           {activePage < 8 && (
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-center text-sm">
               If you're having any trouble with our form, please{' '}
               <Link
                 href="/form/contact-us"
@@ -815,5 +992,20 @@ export default function BecomeAPanaForm() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BecomeAPanaPage() {
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  if (!recaptchaSiteKey) {
+    console.error('NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not configured');
+    return <BecomeAPanaForm />;
+  }
+
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
+      <BecomeAPanaForm />
+    </GoogleReCaptchaProvider>
   );
 }
