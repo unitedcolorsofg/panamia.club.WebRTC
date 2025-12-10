@@ -1,7 +1,11 @@
 'use client';
 
-import type { Metadata } from 'next';
 import { useState, FormEvent } from 'react';
+import { useSession } from 'next-auth/react';
+import {
+  GoogleReCaptchaProvider,
+  useGoogleReCaptcha,
+} from 'react-google-recaptcha-v3';
 import Link from 'next/link';
 import Image from 'next/image';
 import axios from 'axios';
@@ -16,15 +20,26 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Send } from 'lucide-react';
+import { Send, Shield } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-export default function ContactUsPage() {
+function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: session } = useSession();
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const { toast } = useToast();
 
-  const createContactUs = async () => {
+  const isAuthenticated = !!session?.user?.email;
+
+  const validateEmail = (email: string): boolean => {
+    const regEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return regEx.test(email);
+  };
+
+  const createContactUs = async (recaptchaToken?: string) => {
     const response = await axios
       .post(
         '/api/createContactUs',
@@ -32,6 +47,7 @@ export default function ContactUsPage() {
           name,
           email,
           message,
+          recaptchaToken,
         },
         {
           headers: {
@@ -41,42 +57,104 @@ export default function ContactUsPage() {
         }
       )
       .catch((error) => {
-        console.log(error);
-        return null;
+        console.error('Contact form submission error:', error);
+        throw error;
       });
     return response;
   };
 
   function validateContactUs() {
-    if (email.length < 5) {
-      alert('Please enter a valid email address.');
+    if (!name || name.trim().length < 2) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Name',
+        description: 'Please enter your name (at least 2 characters).',
+      });
       return false;
     }
+
+    if (!validateEmail(email)) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Email',
+        description: 'Please enter a valid email address.',
+      });
+      return false;
+    }
+
+    if (!message || message.trim().length < 10) {
+      toast({
+        variant: 'destructive',
+        title: 'Message Too Short',
+        description: 'Please enter a message (at least 10 characters).',
+      });
+      return false;
+    }
+
     return true;
   }
 
   async function submitContactUs(e: FormEvent) {
     e.preventDefault();
-    if (validateContactUs()) {
-      setIsSubmitting(true);
-      const response = await createContactUs();
-      setIsSubmitting(false);
 
-      if (response) {
-        if (response.data.error) {
-          alert(response.data.error);
-        } else {
-          setName('');
-          setEmail('');
-          setMessage('');
-          alert('Your message has been submitted!');
+    if (!validateContactUs()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      let recaptchaToken: string | undefined;
+
+      // Only require reCAPTCHA for unauthenticated users
+      if (!isAuthenticated) {
+        if (!executeRecaptcha) {
+          toast({
+            variant: 'destructive',
+            title: 'Security Error',
+            description: 'reCAPTCHA not ready. Please try again.',
+          });
+          setIsSubmitting(false);
+          return;
         }
+
+        recaptchaToken = await executeRecaptcha('contact_form_submit');
       }
+
+      const response = await createContactUs(recaptchaToken);
+
+      if (response?.data?.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Submission Failed',
+          description: response.data.error,
+        });
+      } else {
+        // Clear form
+        setName('');
+        setEmail('');
+        setMessage('');
+
+        toast({
+          title: 'Message Sent Successfully!',
+          description:
+            "We've received your message and will get back to you soon.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Submission Error',
+        description:
+          'There was a problem submitting your message. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-muted/20">
+    <div className="from-background to-muted/20 flex min-h-screen flex-col bg-gradient-to-b">
       <div className="container mx-auto max-w-2xl px-4 py-12">
         {/* Logo */}
         <div className="mb-8 flex justify-center">
@@ -95,7 +173,7 @@ export default function ContactUsPage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-bold">Contact Us</h1>
-          <div className="space-y-2 text-lg text-muted-foreground">
+          <div className="text-muted-foreground space-y-2 text-lg">
             <p>
               Looking for answers? Check out our{' '}
               <Link
@@ -142,6 +220,7 @@ export default function ContactUsPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -159,6 +238,7 @@ export default function ContactUsPage() {
                   value={email}
                   required
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -177,15 +257,26 @@ export default function ContactUsPage() {
                   rows={6}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
+
+              {/* reCAPTCHA Notice for Unauthenticated Users */}
+              {!isAuthenticated && (
+                <div className="bg-muted text-muted-foreground flex items-center gap-2 rounded-md p-3 text-sm">
+                  <Shield className="h-4 w-4" />
+                  <span>
+                    This form is protected by reCAPTCHA to prevent spam.
+                  </span>
+                </div>
+              )}
 
               {/* Submit Button */}
               <div className="flex justify-center">
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full bg-pana-pink hover:bg-pana-pink/90 md:w-auto"
+                  className="bg-pana-pink hover:bg-pana-pink/90 w-full md:w-auto"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -203,5 +294,21 @@ export default function ContactUsPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ContactUsPage() {
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  if (!recaptchaSiteKey) {
+    console.error('NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not configured');
+    // Still render the form, but reCAPTCHA won't work
+    return <ContactForm />;
+  }
+
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
+      <ContactForm />
+    </GoogleReCaptchaProvider>
   );
 }
