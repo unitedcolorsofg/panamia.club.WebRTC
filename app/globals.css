@@ -121,40 +121,43 @@
 }
 
 /* Fix transparency issues - placed outside @layer for higher specificity */
-button, input, textarea, select {
+
+/* Only fix input backgrounds, not all buttons */
+input:not([type="submit"]):not([type="button"]):not([type="reset"]),
+textarea,
+select {
   background-color: hsl(var(--background)) !important;
-}
-
-.bg-background {
-  background-color: hsl(var(--background)) !important;
-  opacity: 1 !important;
-}
-
-.bg-popover {
-  background-color: hsl(var(--popover)) !important;
-  opacity: 1 !important;
-}
-
-.bg-card {
-  background-color: hsl(var(--card)) !important;
-  opacity: 1 !important;
-}
-
-.bg-primary {
-  background-color: hsl(var(--primary)) !important;
-  opacity: 1 !important;
-}
-
-.bg-secondary {
-  background-color: hsl(var(--secondary)) !important;
-  opacity: 1 !important;
-}
-
-.bg-accent {
-  background-color: hsl(var(--accent)) !important;
-  opacity: 1 !important;
-}
-
-input, textarea, select {
   color: hsl(var(--foreground)) !important;
+}
+
+/* Fix button outline variant specifically */
+button[class*="border"][class*="bg-background"] {
+  background-color: white !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark button[class*="border"][class*="bg-background"] {
+  background-color: hsl(var(--background)) !important;
+}
+
+/* Fix dropdown/popover backgrounds */
+[class*="bg-popover"],
+[data-radix-popper-content-wrapper] > * {
+  background-color: white !important;
+  opacity: 1 !important;
+}
+
+.dark [class*="bg-popover"],
+.dark [data-radix-popper-content-wrapper] > * {
+  background-color: hsl(222.2 84% 4.9%) !important;
+}
+
+/* Ensure card backgrounds are solid */
+.bg-card {
+  background-color: white !important;
+  opacity: 1 !important;
+}
+
+.dark .bg-card {
+  background-color: hsl(222.2 84% 4.9%) !important;
 }
