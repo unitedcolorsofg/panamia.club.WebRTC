@@ -37,7 +37,7 @@ interface TierBadgeProps {
 function TierBadge({ tier }: TierBadgeProps) {
   if (tier === 1) {
     return (
-      <div className="inline-flex items-center gap-1 rounded-full bg-pana-blue px-3 py-1 font-semibold text-white">
+      <div className="bg-pana-blue inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-white">
         <Medal className="h-4 w-4" />
         <span>dePana</span>
       </div>
@@ -45,7 +45,7 @@ function TierBadge({ tier }: TierBadgeProps) {
   }
   if (tier === 2) {
     return (
-      <div className="inline-flex items-center gap-1 rounded-full bg-pana-yellow px-3 py-1 font-semibold text-white">
+      <div className="bg-pana-yellow inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-white">
         <Trophy className="h-4 w-4" />
         <span>Pana Confiado</span>
       </div>
@@ -53,24 +53,22 @@ function TierBadge({ tier }: TierBadgeProps) {
   }
   if (tier === 3) {
     return (
-      <div className="inline-flex items-center gap-1 rounded-full bg-pana-pink px-3 py-1 font-semibold text-white">
+      <div className="bg-pana-pink inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-white">
         <Crown className="h-4 w-4" />
         <span>Pana Real</span>
       </div>
     );
   }
-  return <span className="text-sm text-muted-foreground">None</span>;
+  return <span className="text-muted-foreground text-sm">None</span>;
 }
 
 export default function DonatePage() {
   const [email, setEmail] = useState('');
   const [amount, setAmount] = useState(0.0);
-  const [allReqFields, setAllReqFields] = useState(false);
   const [comment, setComment] = useState('');
   const [dedicate, setDedicate] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [isOther, setIsOther] = useState(false);
   const customAmountInputRef = useRef<HTMLInputElement>(null);
 
   let monthlyTier = 0;
@@ -87,16 +85,10 @@ export default function DonatePage() {
     return emailRegex.test(email);
   };
 
-  useEffect(() => {
-    setIsOther(
-      !preAmounts.includes(amount) && !monthPreAmounts.includes(amount)
-    );
-  }, [amount]);
-
-  useEffect(() => {
-    const isValid = validateEmail(email) && amount > 0;
-    setAllReqFields(isValid);
-  }, [email, amount]);
+  // Derived state - compute during render instead of using useEffect
+  const isOther =
+    !preAmounts.includes(amount) && !monthPreAmounts.includes(amount);
+  const allReqFields = validateEmail(email) && amount > 0;
 
   const focusCustomAmountInput = () => {
     if (customAmountInputRef.current) {
@@ -126,12 +118,12 @@ export default function DonatePage() {
         monthlyTier,
       }),
     });
-    const { sessionId } = await response.json();
-    const stripe = await stripePromise;
-    if (stripe) {
-      stripe.redirectToCheckout({ sessionId });
+    const { url } = await response.json();
+    if (url) {
+      // In Stripe.js v8+, redirect directly to the checkout URL
+      window.location.href = url;
     } else {
-      console.error('Stripe instance could not be initialized');
+      console.error('Checkout session URL not received');
     }
   };
 
@@ -193,7 +185,7 @@ export default function DonatePage() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl">
-            <h1 className="mb-12 text-center text-4xl font-bold text-pana-pink md:text-5xl">
+            <h1 className="text-pana-pink mb-12 text-center text-4xl font-bold md:text-5xl">
               MAKE A DONATION
             </h1>
 
@@ -341,7 +333,7 @@ export default function DonatePage() {
                                 benefit.depana ? (
                                   <Check className="mx-auto h-5 w-5 text-green-600" />
                                 ) : (
-                                  <X className="mx-auto h-5 w-5 text-muted-foreground" />
+                                  <X className="text-muted-foreground mx-auto h-5 w-5" />
                                 )
                               ) : (
                                 benefit.depana
@@ -352,7 +344,7 @@ export default function DonatePage() {
                                 benefit.confiado ? (
                                   <Check className="mx-auto h-5 w-5 text-green-600" />
                                 ) : (
-                                  <X className="mx-auto h-5 w-5 text-muted-foreground" />
+                                  <X className="text-muted-foreground mx-auto h-5 w-5" />
                                 )
                               ) : (
                                 benefit.confiado
@@ -363,7 +355,7 @@ export default function DonatePage() {
                                 benefit.real ? (
                                   <Check className="mx-auto h-5 w-5 text-green-600" />
                                 ) : (
-                                  <X className="mx-auto h-5 w-5 text-muted-foreground" />
+                                  <X className="text-muted-foreground mx-auto h-5 w-5" />
                                 )
                               ) : (
                                 benefit.real
@@ -381,7 +373,7 @@ export default function DonatePage() {
                       <h3 className="mb-2 text-center text-xl font-bold">
                         Select Your Donation
                       </h3>
-                      <p className="text-center text-muted-foreground">
+                      <p className="text-muted-foreground text-center">
                         Select an option below or enter a custom donation amount
                       </p>
                     </div>
@@ -397,7 +389,7 @@ export default function DonatePage() {
                               ? 'default'
                               : 'outline'
                           }
-                          className="flex h-auto items-center justify-center gap-2 bg-pana-navy py-4 text-white hover:bg-pana-navy/90"
+                          className="bg-pana-navy hover:bg-pana-navy/90 flex h-auto items-center justify-center gap-2 py-4 text-white"
                           onClick={() => {
                             setAmount(10);
                             setIsRecurring(true);
@@ -413,7 +405,7 @@ export default function DonatePage() {
                               ? 'default'
                               : 'outline'
                           }
-                          className="flex h-auto items-center justify-center gap-2 bg-pana-navy py-4 text-white hover:bg-pana-navy/90"
+                          className="bg-pana-navy hover:bg-pana-navy/90 flex h-auto items-center justify-center gap-2 py-4 text-white"
                           onClick={() => {
                             setAmount(15);
                             setIsRecurring(true);
@@ -429,7 +421,7 @@ export default function DonatePage() {
                               ? 'default'
                               : 'outline'
                           }
-                          className="flex h-auto items-center justify-center gap-2 bg-pana-navy py-4 text-white hover:bg-pana-navy/90"
+                          className="bg-pana-navy hover:bg-pana-navy/90 flex h-auto items-center justify-center gap-2 py-4 text-white"
                           onClick={() => {
                             setAmount(25);
                             setIsRecurring(true);
@@ -454,7 +446,7 @@ export default function DonatePage() {
                                 ? 'default'
                                 : 'outline'
                             }
-                            className="h-auto bg-pana-navy py-4 text-white hover:bg-pana-navy/90"
+                            className="bg-pana-navy hover:bg-pana-navy/90 h-auto py-4 text-white"
                             onClick={() => {
                               setAmount(presetAmount);
                               setIsRecurring(false);
@@ -569,7 +561,7 @@ export default function DonatePage() {
                     <Button
                       type="submit"
                       size="lg"
-                      className="bg-pana-navy px-12 hover:bg-pana-navy/90"
+                      className="bg-pana-navy hover:bg-pana-navy/90 px-12"
                       disabled={!allReqFields}
                     >
                       Make My Donation

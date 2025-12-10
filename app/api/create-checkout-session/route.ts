@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-});
+// Initialize Stripe lazily to avoid build-time env issues
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not set');
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-11-17.clover',
+  });
+};
 
 export async function POST(request: NextRequest) {
+  const stripe = getStripe();
   try {
     const body = await request.json();
     const {
@@ -47,7 +54,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ sessionId: session.id }, { status: 200 });
+    return NextResponse.json(
+      { url: session.url, sessionId: session.id },
+      { status: 200 }
+    );
   } catch (err) {
     const error = err as any;
     return NextResponse.json(
