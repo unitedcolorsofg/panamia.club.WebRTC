@@ -61,14 +61,14 @@ export default function UserEditPage() {
 
   if (!session) {
     return (
-      <main className="min-h-screen bg-gray-50 py-8 dark:bg-gray-900">
-        <div className="mx-auto max-w-2xl px-4">
+      <main className="container mx-auto max-w-5xl px-4 py-8">
+        <div className="mx-auto max-w-2xl">
           <Card>
             <CardHeader>
               <CardTitle>Unauthorized</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 You must be logged in to view this page.
               </p>
             </CardContent>
@@ -79,8 +79,8 @@ export default function UserEditPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8 dark:bg-gray-900">
-      <div className="mx-auto max-w-2xl space-y-6 px-4">
+    <main className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="mx-auto max-w-2xl space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Update Your Account Settings</CardTitle>

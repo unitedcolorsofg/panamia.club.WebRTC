@@ -47,28 +47,30 @@ export default async function SchedulePage() {
     .lean();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">My Sessions</h1>
+    <main className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="space-y-6">
+        <h1 className="mb-8 text-3xl font-bold">My Sessions</h1>
 
-      <div className="space-y-8">
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Upcoming Sessions</h2>
-          <SessionsList
-            sessions={JSON.parse(JSON.stringify(upcomingSessions))}
-            userEmail={session.user.email}
-            type="upcoming"
-          />
-        </div>
+        <div className="space-y-8">
+          <div>
+            <h2 className="mb-4 text-2xl font-semibold">Upcoming Sessions</h2>
+            <SessionsList
+              sessions={JSON.parse(JSON.stringify(upcomingSessions))}
+              userEmail={session.user.email}
+              type="upcoming"
+            />
+          </div>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Past Sessions</h2>
-          <SessionsList
-            sessions={JSON.parse(JSON.stringify(pastSessions))}
-            userEmail={session.user.email}
-            type="past"
-          />
+          <div>
+            <h2 className="mb-4 text-2xl font-semibold">Past Sessions</h2>
+            <SessionsList
+              sessions={JSON.parse(JSON.stringify(pastSessions))}
+              userEmail={session.user.email}
+              type="past"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
