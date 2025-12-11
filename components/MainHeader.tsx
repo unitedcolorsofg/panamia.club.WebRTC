@@ -221,7 +221,7 @@ export default function MainHeader() {
         {/* Unauthenticated users: Show Become a Pana and Log In buttons */}
         {status !== 'loading' && !session && (
           <>
-            <Button size="default" variant="default" asChild>
+            <Button size="default" variant="outline" asChild>
               <Link href="/form/become-a-pana">Become a Pana</Link>
             </Button>
             <Button size="default" variant="outline" asChild>

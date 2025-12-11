@@ -1,7 +1,7 @@
-import NextAuth from "next-auth"
-import EmailProvider from "next-auth/providers/email"
-import { MongoDBAdapter } from "@auth/mongodb-adapter"
-import clientPromise from "@/lib/mongodb"
+import NextAuth from 'next-auth';
+import EmailProvider from 'next-auth/providers/email';
+import { MongoDBAdapter } from '@auth/mongodb-adapter';
+import clientPromise from '@/lib/mongodb';
 
 const mongoAdapterOptions = {
   collections: {
@@ -10,141 +10,148 @@ const mongoAdapterOptions = {
     Users: 'nextauth_users',
     VerificationTokens: 'nextauth_verification_tokens',
   },
-}
+};
 
 // Fix for NextAuth v5 beta useVerificationToken issue
 // See: https://github.com/nextauthjs/next-auth/discussions/7363
 // See: https://github.com/nextauthjs/next-auth/discussions/4585
 // Note: NextAuth already hashes the token before calling this function,
 // so we search for params.token directly (no additional hashing needed)
-async function customUseVerificationToken(params: { identifier: string; token: string }) {
-  const client = await clientPromise
-  const db = client.db()
-  const collection = db.collection('nextauth_verification_tokens')
+async function customUseVerificationToken(params: {
+  identifier: string;
+  token: string;
+}) {
+  const client = await clientPromise;
+  const db = client.db();
+  const collection = db.collection('nextauth_verification_tokens');
 
-  console.log('customUseVerificationToken searching for:', {
-    identifier: params.identifier,
-    token: params.token,
-  })
+  // console.log('customUseVerificationToken searching for:', {
+  //   identifier: params.identifier,
+  //   token: params.token,
+  // })
 
   // Check all tokens in the database
-  const allTokens = await collection.find({ identifier: params.identifier }).toArray()
-  console.log('All tokens in DB for this email:', allTokens)
+  const allTokens = await collection
+    .find({ identifier: params.identifier })
+    .toArray();
+  // console.log('All tokens in DB for this email:', allTokens)
 
   const verificationToken = await collection.findOne({
     identifier: params.identifier,
     token: params.token,
-  })
+  });
 
-  console.log('Found token:', verificationToken)
+  // console.log('Found token:', verificationToken)
 
   if (!verificationToken) {
-    return null
+    return null;
   }
 
   // Delete the token after retrieving it (one-time use)
   await collection.deleteOne({
     identifier: params.identifier,
     token: params.token,
-  })
+  });
 
   return {
     identifier: verificationToken.identifier,
     token: verificationToken.token,
     expires: verificationToken.expires,
-  }
+  };
 }
 
-const baseAdapter = MongoDBAdapter(clientPromise, mongoAdapterOptions)
+const baseAdapter = MongoDBAdapter(clientPromise, mongoAdapterOptions);
 
 // WORKAROUND: Store the last updated/created user ID for createSession
 // This fixes a NextAuth v5 beta bug where createSession is called without userId
-let lastUserIdFromUpdate: string | null = null
+let lastUserIdFromUpdate: string | null = null;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: {
     ...baseAdapter,
     // @ts-ignore - Type conflict between @auth/core versions in next-auth and mongodb-adapter
     updateUser: async (user) => {
-      console.log('[DEBUG] updateUser called with:', JSON.stringify(user, null, 2))
+      // console.log('[DEBUG] updateUser called with:', JSON.stringify(user, null, 2))
 
       // Capture the user ID from the INPUT parameter (before calling base adapter)
       if (user.id) {
-        lastUserIdFromUpdate = user.id
-        console.log('[DEBUG] Captured userId from updateUser input:', lastUserIdFromUpdate)
+        lastUserIdFromUpdate = user.id;
+        // console.log('[DEBUG] Captured userId from updateUser input:', lastUserIdFromUpdate)
       }
 
-      const result = await baseAdapter.updateUser!(user)
-      console.log('[DEBUG] updateUser result:', JSON.stringify(result, null, 2))
+      const result = await baseAdapter.updateUser!(user);
+      // console.log('[DEBUG] updateUser result:', JSON.stringify(result, null, 2))
 
-      return result
+      return result;
     },
     // @ts-ignore - Type conflict between @auth/core versions in next-auth and mongodb-adapter
     useVerificationToken: async (params) => {
-      const result = await baseAdapter.useVerificationToken!(params)
+      const result = await baseAdapter.useVerificationToken!(params);
 
       // MongoDB adapter returns operation result {value, ok, lastErrorObject}
       // Extract the actual document from .value property
-      let verificationToken = result
+      let verificationToken = result;
       if (result && typeof result === 'object' && 'value' in result) {
-        verificationToken = result.value as typeof result
+        verificationToken = result.value as typeof result;
       }
 
       if (!verificationToken) {
-        return null
+        return null;
       }
 
       // Ensure expires is a proper Date object
       if (verificationToken.expires) {
-        verificationToken.expires = new Date(verificationToken.expires)
+        verificationToken.expires = new Date(verificationToken.expires);
       }
 
-      return verificationToken
+      return verificationToken;
     },
     // @ts-ignore - Type conflict between @auth/core versions in next-auth and mongodb-adapter
     createSession: async (session) => {
-      console.log('[DEBUG] createSession called with:', JSON.stringify(session, null, 2))
+      // console.log('[DEBUG] createSession called with:', JSON.stringify(session, null, 2))
 
       // WORKAROUND: If userId is missing, use the one captured from updateUser
       // This fixes a NextAuth v5 beta bug where createSession is called without userId
       if (!session.userId && lastUserIdFromUpdate) {
-        console.log('[DEBUG] Adding missing userId from updateUser:', lastUserIdFromUpdate)
-        session.userId = lastUserIdFromUpdate
-        lastUserIdFromUpdate = null // Clear it after use
+        // console.log('[DEBUG] Adding missing userId from updateUser:', lastUserIdFromUpdate)
+        session.userId = lastUserIdFromUpdate;
+        lastUserIdFromUpdate = null; // Clear it after use
       } else if (!session.userId) {
-        console.error('[ERROR] createSession called without userId and no cached userId available!')
+        console.error(
+          '[ERROR] createSession called without userId and no cached userId available!'
+        );
       }
 
-      const result = await baseAdapter.createSession!(session)
-      console.log('[DEBUG] createSession raw result:', JSON.stringify(result, null, 2))
-      return result
+      const result = await baseAdapter.createSession!(session);
+      // console.log('[DEBUG] createSession raw result:', JSON.stringify(result, null, 2))
+      return result;
     },
     // @ts-ignore - Type conflict between @auth/core versions in next-auth and mongodb-adapter
     getSessionAndUser: async (sessionToken) => {
-      console.log('[DEBUG] getSessionAndUser called with token:', sessionToken)
-      const result = await baseAdapter.getSessionAndUser!(sessionToken)
-      console.log('[DEBUG] getSessionAndUser raw result:', JSON.stringify(result, null, 2))
+      // console.log('[DEBUG] getSessionAndUser called with token:', sessionToken)
+      const result = await baseAdapter.getSessionAndUser!(sessionToken);
+      // console.log('[DEBUG] getSessionAndUser raw result:', JSON.stringify(result, null, 2))
 
       if (!result) {
-        console.log('[DEBUG] getSessionAndUser: result is null/undefined')
-        return null
+        // console.log('[DEBUG] getSessionAndUser: result is null/undefined')
+        return null;
       }
 
       // Check if result has the expected structure {session, user}
       if (result.session && result.user) {
-        console.log('[DEBUG] getSessionAndUser: returning valid session and user')
+        // console.log('[DEBUG] getSessionAndUser: returning valid session and user')
         // Ensure expires is a proper Date object
         if (result.session.expires) {
-          result.session.expires = new Date(result.session.expires)
+          result.session.expires = new Date(result.session.expires);
         }
         if (result.user.emailVerified) {
-          result.user.emailVerified = new Date(result.user.emailVerified)
+          result.user.emailVerified = new Date(result.user.emailVerified);
         }
-        return result
+        return result;
       }
 
-      console.log('[DEBUG] getSessionAndUser: unexpected result format')
-      return null
+      // console.log('[DEBUG] getSessionAndUser: unexpected result format')
+      return null;
     },
   },
   providers: [
@@ -173,7 +180,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async session({ session, user }) {
-      console.log('Session callback called:', { session, user })
+      // console.log('Session callback called:', { session, user })
 
       // Attach user data to session
       if (user) {
@@ -185,10 +192,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Privacy: clear name and image
           name: '',
           image: '',
-        }
+        };
       }
 
-      console.log('Session callback returning:', session)
+      // console.log('Session callback returning:', session)
       return session;
     },
   },
@@ -199,4 +206,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: true,
-})
+});

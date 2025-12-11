@@ -43,11 +43,7 @@ function BecomeAPanaForm() {
   const [socialsTwitter, setSocialsTwitter] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [whatsappCommunity, setWhatsappCommunity] = useState(false);
-  const [pronounsSheher, setPronounsSheher] = useState(false);
-  const [pronounsHehim, setPronounsHehim] = useState(false);
-  const [pronounsTheythem, setPronounsTheythem] = useState(false);
-  const [pronounsNone, setPronounsNone] = useState(false);
-  const [pronounsOther, setPronounsOther] = useState(false);
+  const [pronouns, setPronouns] = useState('');
   const [pronounsOtherdesc, setPronounsOtherdesc] = useState('');
   const [fiveWords, setFiveWords] = useState('');
   const [tags, setTags] = useState('');
@@ -122,12 +118,12 @@ function BecomeAPanaForm() {
       tiktok: socialsTiktok,
       twitter: socialsTwitter,
     };
-    const pronouns = {
-      sheher: pronounsSheher,
-      hehim: pronounsHehim,
-      theythem: pronounsTheythem,
-      none: pronounsNone,
-      other: pronounsOther,
+    const pronounsData = {
+      sheher: pronouns === 'sheher',
+      hehim: pronouns === 'hehim',
+      theythem: pronouns === 'theythem',
+      none: pronouns === 'none',
+      other: pronouns === 'other',
       other_desc: pronounsOtherdesc,
     };
     const response = await axios
@@ -142,7 +138,7 @@ function BecomeAPanaForm() {
           socials: socials,
           phone_number: phoneNumber,
           whatsapp_community: whatsappCommunity,
-          pronouns: pronouns,
+          pronouns: pronounsData,
           five_words: fiveWords,
           tags: tags,
           hearaboutus: hearAboutUs,
@@ -329,23 +325,12 @@ function BecomeAPanaForm() {
             Directory Express Sign Up Form
           </h1>
 
-          {/* reCAPTCHA Notice */}
-          <div className="bg-muted text-muted-foreground flex items-center gap-2 rounded-md p-3 text-sm">
-            <Shield className="h-4 w-4 flex-shrink-0" />
-            <span>
-              This form is protected by reCAPTCHA to prevent spam submissions.
-            </span>
-          </div>
-
           <Card>
             <CardContent className="p-6 md:p-8">
               {/* Progress Bar */}
               {activePage < 8 && (
                 <div className="mb-8">
                   <Progress value={progress} className="h-2" />
-                  <p className="text-muted-foreground mt-2 text-center text-sm">
-                    Page {activePage} of 7
-                  </p>
                 </div>
               )}
 
@@ -571,64 +556,39 @@ function BecomeAPanaForm() {
                         If you are an Individual (not representing a group or
                         org)
                       </p>
-                      <div className="space-y-3">
+                      <RadioGroup
+                        value={pronouns}
+                        onValueChange={(value) => {
+                          setPronouns(value);
+                          if (value !== 'other') {
+                            setPronounsOtherdesc('');
+                          }
+                        }}
+                        disabled={isSubmitting}
+                        className="space-y-3"
+                      >
                         <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="sheher"
-                            checked={pronounsSheher}
-                            onCheckedChange={(checked) =>
-                              setPronounsSheher(checked as boolean)
-                            }
-                            disabled={isSubmitting}
-                          />
+                          <RadioGroupItem value="sheher" id="sheher" />
                           <Label htmlFor="sheher">She/Her</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="hehim"
-                            checked={pronounsHehim}
-                            onCheckedChange={(checked) =>
-                              setPronounsHehim(checked as boolean)
-                            }
-                            disabled={isSubmitting}
-                          />
+                          <RadioGroupItem value="hehim" id="hehim" />
                           <Label htmlFor="hehim">He/Him</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="theythem"
-                            checked={pronounsTheythem}
-                            onCheckedChange={(checked) =>
-                              setPronounsTheythem(checked as boolean)
-                            }
-                            disabled={isSubmitting}
-                          />
+                          <RadioGroupItem value="theythem" id="theythem" />
                           <Label htmlFor="theythem">They/Them</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="none"
-                            checked={pronounsNone}
-                            onCheckedChange={(checked) =>
-                              setPronounsNone(checked as boolean)
-                            }
-                            disabled={isSubmitting}
-                          />
+                          <RadioGroupItem value="none" id="none" />
                           <Label htmlFor="none">No Preference</Label>
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="other-pronoun"
-                              checked={pronounsOther}
-                              onCheckedChange={(checked) =>
-                                setPronounsOther(checked as boolean)
-                              }
-                              disabled={isSubmitting}
-                            />
+                            <RadioGroupItem value="other" id="other-pronoun" />
                             <Label htmlFor="other-pronoun">Other:</Label>
                           </div>
-                          {pronounsOther && (
+                          {pronouns === 'other' && (
                             <Input
                               type="text"
                               placeholder="Please specify"
@@ -641,7 +601,7 @@ function BecomeAPanaForm() {
                             />
                           )}
                         </div>
-                      </div>
+                      </RadioGroup>
                     </div>
                     <div className="flex justify-between pt-6">
                       <Button
