@@ -26,9 +26,11 @@ export default async function EditProfilePage() {
     : undefined;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">Edit Mentoring Profile</h1>
-      <ProfileForm initialData={initialData} />
-    </div>
+    <main className="container mx-auto max-w-5xl px-4 py-8">
+      <h1 className="mb-8 text-3xl font-bold">Edit Mentoring Profile</h1>
+      <div className="max-w-2xl">
+        <ProfileForm initialData={initialData} />
+      </div>
+    </main>
   );
 }

@@ -205,5 +205,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     buttonText: '#fff',
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: true,
+  debug: false,
 });

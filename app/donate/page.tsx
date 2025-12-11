@@ -524,7 +524,9 @@ export default function DonatePage() {
                           <SelectValue placeholder="- No Dedication -" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">- No Dedication -</SelectItem>
+                          <SelectItem value="none">
+                            - No Dedication -
+                          </SelectItem>
                           <SelectItem value="Directory">Directory</SelectItem>
                           <SelectItem value="Other">
                             Other (please describe)
