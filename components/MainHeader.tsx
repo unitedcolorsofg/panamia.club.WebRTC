@@ -217,14 +217,27 @@ export default function MainHeader() {
         </div>
       )}
       {/* Top-right navigation buttons */}
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
+      <div className="fixed top-2 right-2 z-50 flex flex-wrap gap-1 md:top-4 md:right-4 md:gap-2">
         {/* Unauthenticated users: Show Become a Pana and Log In buttons */}
         {status !== 'loading' && !session && (
           <>
-            <Button size="default" variant="outline" asChild>
-              <Link href="/form/become-a-pana">Become a Pana</Link>
+            <Button
+              size="sm"
+              variant="outline"
+              asChild
+              className="md:h-10 md:px-4"
+            >
+              <Link href="/form/become-a-pana">
+                <span className="hidden md:inline">Become a Pana</span>
+                <span className="md:hidden">Sign Up</span>
+              </Link>
             </Button>
-            <Button size="default" variant="outline" asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              asChild
+              className="md:h-10 md:px-4"
+            >
               <Link href="/api/auth/signin">Log In</Link>
             </Button>
           </>

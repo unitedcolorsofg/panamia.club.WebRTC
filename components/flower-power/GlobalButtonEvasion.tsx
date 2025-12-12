@@ -19,6 +19,19 @@ export function GlobalButtonEvasion() {
   useEffect(() => {
     if (!isActive) return;
 
+    // Detect if this is a touch device - disable evasion on mobile
+    const isTouchDevice =
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      (navigator as any).msMaxTouchPoints > 0;
+
+    if (isTouchDevice) {
+      console.log(
+        '[Flower Power] Touch device detected, disabling button evasion'
+      );
+      return;
+    }
+
     const buttonStates = new Map<HTMLElement, ButtonState>();
     const maxDodges = 3;
     const activationRadius = 250; // Much larger radius
