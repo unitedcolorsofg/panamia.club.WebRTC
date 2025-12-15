@@ -1,6 +1,6 @@
 # Pana Mia Club
 
-**The Future is Local - Community platform for South Florida artists and venues**
+**The Future is Local - Community platform for South Florida artists and businesses**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0.8-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.1-blue)](https://react.dev/)
@@ -28,11 +28,12 @@
 
 ## About
 
-Pana Mia Club is a community-driven platform for the South Florida local music scene. The project embodies "The Future is Local" - connecting artists, venues, and fans in the local community.
+Pana Mia Club is a 501(c)(3) non-profit built to support the creation of regenerative and vibrant economies in South Florida.
+"The Future is Local" - we connect artists, creatives, and local businesses. This is our core software tool.
 
 This project is:
 
-- **Open Source**: Publicly available to encourage collaboration on local projects
+- **Source Reviewable**: Publicly available to encourage collaboration on local projects
 - **Community-Focused**: Built for connecting South Florida artists, venues, and music lovers
 - **Accessible**: Following WCAG guidelines and best practices
 - **Budget-Conscious**: Using cost-effective, scalable technologies
@@ -81,8 +82,6 @@ Before you begin, ensure you have:
 - **npm**: Version 10.x or higher (comes with Node.js)
 - **MongoDB Atlas Account**: Required for search functionality ([Sign up](https://www.mongodb.com/cloud/atlas))
 - **Git**: For version control
-
-### Important Database Requirement
 
 **MongoDB Atlas is REQUIRED for full functionality.** The directory and admin search features use Atlas Search indexes (`$search` aggregation), which are not available in local MongoDB instances. Without Atlas, search functionality will not work.
 
@@ -140,15 +139,11 @@ Edit `.env.local` with your actual credentials. See `example.env` for all availa
 
 ### 4. Set Up MongoDB Atlas
 
-**MongoDB Atlas is required** - local MongoDB will not support search features.
-
 1. Create free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 2. Create a cluster
 3. Configure Atlas Search indexes for the `profiles` collection
 4. Get connection string and add to `.env.local` as `MONGODB_URI`
 5. Add your IP address to Atlas IP whitelist
-
-**Why Atlas?** Directory search uses `$search` aggregation which requires Atlas Search indexes.
 
 ---
 
@@ -168,8 +163,6 @@ The dev server includes:
 - Fast refresh for React components
 - Automatic TypeScript compilation
 - Error overlay with detailed stack traces
-
-**Note**: HTTPS is used by default for WebRTC features (camera/microphone access).
 
 ### Code Quality
 
