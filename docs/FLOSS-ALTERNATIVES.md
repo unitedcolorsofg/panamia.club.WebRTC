@@ -111,60 +111,58 @@ We prioritize FLOSS solutions where:
 
 ### Core Framework & Libraries
 
-| Package        | License    | Purpose                      |
-| -------------- | ---------- | ---------------------------- |
-| **Next.js**    | MIT        | React framework with SSR/SSG |
-| **React**      | MIT        | UI library                   |
-| **TypeScript** | Apache 2.0 | Type-safe JavaScript         |
-| **Node.js**    | MIT        | JavaScript runtime           |
+| Package        | Version | License    | Purpose                      |
+| -------------- | ------- | ---------- | ---------------------------- |
+| **Next.js**    | 16.0.8  | MIT        | React framework with SSR/SSG |
+| **React**      | 19.2.1  | MIT        | UI library                   |
+| **TypeScript** | 5.9.3   | Apache 2.0 | Type-safe JavaScript         |
+| **Node.js**    | 20+     | MIT        | JavaScript runtime           |
 
 ### UI & Styling
 
-| Package              | License | Purpose                         |
-| -------------------- | ------- | ------------------------------- |
-| **Tailwind CSS**     | MIT     | Utility-first CSS framework     |
-| **shadcn/ui**        | MIT     | Copy/paste component library    |
-| **Radix UI**         | MIT     | Unstyled accessible components  |
-| **Lucide React**     | ISC     | Icon library                    |
-| **Mantine** (legacy) | MIT     | Component library (legacy code) |
+| Package          | Version | License | Purpose                        |
+| ---------------- | ------- | ------- | ------------------------------ |
+| **Tailwind CSS** | 4.1.17  | MIT     | Utility-first CSS framework    |
+| **shadcn/ui**    | latest  | MIT     | Copy/paste component library   |
+| **Radix UI**     | 1.x     | MIT     | Unstyled accessible components |
+| **Lucide React** | 0.559.0 | ISC     | Icon library                   |
 
 ### Forms & Validation
 
-| Package             | License    | Purpose                     |
-| ------------------- | ---------- | --------------------------- |
-| **React Hook Form** | MIT        | Performant form handling    |
-| **Zod**             | MIT        | TypeScript-first validation |
-| **Formik** (legacy) | Apache 2.0 | Form library (legacy code)  |
+| Package             | Version | License | Purpose                     |
+| ------------------- | ------- | ------- | --------------------------- |
+| **React Hook Form** | 7.67.0  | MIT     | Performant form handling    |
+| **Zod**             | 4.1.13  | MIT     | TypeScript-first validation |
 
 ### State Management
 
-| Package            | License | Purpose                 |
-| ------------------ | ------- | ----------------------- |
-| **TanStack Query** | MIT     | Server state management |
-| **Zustand**        | MIT     | Client state management |
+| Package            | Version | License | Purpose                 |
+| ------------------ | ------- | ------- | ----------------------- |
+| **TanStack Query** | 5.90.12 | MIT     | Server state management |
 
 ### Authentication
 
-| Package                        | License | Purpose                    |
-| ------------------------------ | ------- | -------------------------- |
-| **NextAuth.js**                | ISC     | Authentication for Next.js |
-| **@next-auth/mongodb-adapter** | ISC     | MongoDB session storage    |
+| Package                   | Version       | License | Purpose                    |
+| ------------------------- | ------------- | ------- | -------------------------- |
+| **NextAuth.js**           | 5.0.0-beta.30 | ISC     | Authentication for Next.js |
+| **@auth/mongodb-adapter** | 3.11.1        | ISC     | MongoDB session storage    |
 
 ### Database
 
-| Package      | License | Purpose           |
-| ------------ | ------- | ----------------- |
-| **MongoDB**  | SSPL    | Document database |
-| **Mongoose** | MIT     | MongoDB ODM       |
+| Package      | Version | License | Purpose           |
+| ------------ | ------- | ------- | ----------------- |
+| **MongoDB**  | 7.x     | SSPL    | Document database |
+| **Mongoose** | 9.0.1   | MIT     | MongoDB ODM       |
 
 ### Development Tools
 
-| Package         | License | Purpose                     |
-| --------------- | ------- | --------------------------- |
-| **Prettier**    | MIT     | Code formatter              |
-| **ESLint**      | MIT     | Code linter                 |
-| **Husky**       | MIT     | Git hooks                   |
-| **lint-staged** | MIT     | Run linters on staged files |
+| Package         | Version | License | Purpose                     |
+| --------------- | ------- | ------- | --------------------------- |
+| **Prettier**    | 3.7.4   | MIT     | Code formatter              |
+| **ESLint**      | 9.39.1  | MIT     | Code linter                 |
+| **Husky**       | 9.1.7   | MIT     | Git hooks                   |
+| **lint-staged** | 16.2.7  | MIT     | Run linters on staged files |
+| **Playwright**  | 1.57.0  | Apache  | E2E testing framework       |
 
 ---
 

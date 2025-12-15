@@ -7,18 +7,21 @@ The mentoring platform implements multiple layers of security to protect user da
 ## Authentication Layer
 
 ### NextAuth v5 Implementation
+
 - **Session Management**: Database sessions stored in MongoDB
 - **Email Provider**: Passwordless authentication with magic links
 - **Session Validation**: Server-side session checks on every protected route
 - **Token Security**: NextAuth handles token encryption and validation
 
 ### Protected Routes
+
 All mentoring routes are protected via layout authentication:
+
 ```typescript
 // app/(mentoring)/layout.tsx
-const session = await auth()
+const session = await auth();
 if (!session?.user) {
-  redirect('/api/auth/signin')
+  redirect('/api/auth/signin');
 }
 ```
 
@@ -27,9 +30,11 @@ if (!session?.user) {
 ## Authorization Layer
 
 ### Session Access Control
+
 Sessions are restricted to authorized participants only:
 
 **Database Query Pattern**:
+
 ```typescript
 await MentorSession.findOne({
   sessionId: params.sessionId,
@@ -37,7 +42,7 @@ await MentorSession.findOne({
     { mentorEmail: session.user.email },
     { menteeEmail: session.user.email },
   ],
-})
+});
 ```
 
 **API Endpoints**: All session endpoints verify participant membership
@@ -48,10 +53,12 @@ await MentorSession.findOne({
 ### Pusher Channel Authorization
 
 **Channel Naming Convention**:
+
 - Private channels: `private-session-{sessionId}`
 - Presence channels: `presence-session-{sessionId}`
 
 **Authorization Flow**:
+
 1. Client requests channel subscription
 2. Pusher sends auth request to `/api/pusher/auth`
 3. Server validates:
@@ -70,6 +77,7 @@ await MentorSession.findOne({
 All user inputs validated before processing:
 
 **Profile Data**:
+
 - Expertise: 1-10 items, strings only
 - Languages: 1+ items, strings only
 - Bio: 10-500 characters
@@ -77,6 +85,7 @@ All user inputs validated before processing:
 - Hourly rate: Non-negative number
 
 **Session Data**:
+
 - Email: Valid email format
 - DateTime: ISO 8601 format
 - Duration: 15-120 minutes
@@ -91,15 +100,18 @@ All user inputs validated before processing:
 ### Sensitive Data Handling
 
 **What's Protected**:
+
 - User emails (only visible to session participants)
 - Session notes (private to participants)
 - Profile information (visibility controlled)
 
 **What's Exposed**:
+
 - Session IDs (unpredictable nanoid, 16 characters)
 - Mentor public profiles (intentional for discovery)
 
 **Pusher Payloads**:
+
 - Minimized personal identifiers
 - Only email (required for identification)
 - No passwords or sensitive credentials
@@ -113,10 +125,11 @@ All user inputs validated before processing:
 **Field Projection**: `.select()` used to limit exposed fields
 
 Example:
+
 ```typescript
 await Profile.find(query)
   .select('name email mentoring availability slug images')
-  .limit(50)
+  .limit(50);
 ```
 
 **Status**: ✅ Protected against NoSQL injection
@@ -127,6 +140,7 @@ await Profile.find(query)
 
 **Development**: HTTP acceptable (localhost)
 **Production**: HTTPS required for:
+
 - getUserMedia API (camera/microphone access)
 - Secure WebSocket connections (Pusher)
 - Cookie security (NextAuth sessions)
@@ -135,24 +149,33 @@ await Profile.find(query)
 
 **Status**: ⚠️ Requires HTTPS in production (standard practice)
 
-### WebRTC Security
+### WebRTC Security (Prototype Feature)
+
+> **Note**: The WebRTC peer-to-peer video feature is currently in **prototype stage** and not production-ready.
 
 **Signaling**: Encrypted via Pusher (TLS/WSS)
 **Media Streams**: Peer-to-peer, encrypted (DTLS-SRTP)
 **STUN Servers**: Google public STUN (no credentials exposed)
 **TURN Servers**: Not configured (future enhancement)
 
-**Status**: ✅ Standard WebRTC security model
+**Limitations**:
+
+- No TURN servers means connectivity issues in restrictive networks
+- May not work behind symmetric NATs or strict firewalls
+- Suitable for testing and development only
+
+**Status**: ⚠️ Prototype - Standard WebRTC security model, but connectivity not guaranteed
 
 ## API Security
 
 ### Endpoint Protection
 
 All mentoring API routes protected:
+
 ```typescript
-const session = await auth()
+const session = await auth();
 if (!session?.user?.email) {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 ```
 
@@ -226,43 +249,51 @@ PUSHER_CLUSTER=         # Cluster (safe in client)
 ## Known Security Considerations
 
 ### 1. Rate Limiting (Recommended)
+
 **Risk**: Users can spam API endpoints
 **Mitigation**: Implement rate limiting middleware
 **Priority**: Medium
 **Effort**: Low (use next-rate-limit package)
 
 ### 2. TURN Server Configuration (Optional)
+
 **Risk**: Users behind strict firewalls cannot connect
 **Mitigation**: Configure TURN servers with credentials
 **Priority**: Low (only affects small percentage)
 **Effort**: Medium (requires infrastructure)
 
 ### 3. Session Recording (Privacy)
+
 **Current**: Sessions not recorded
 **Consideration**: If recording added, need:
+
 - User consent
 - Secure storage
 - Retention policy
 - GDPR compliance
 
 ### 4. Profile Update API (TODO)
+
 **Current**: Frontend form has placeholder API call
 **Required**: Implement PATCH /api/mentoring/profile
 **Security**: Must validate user owns profile
 
 ### 5. Availability Schedule (Incomplete)
+
 **Current**: Database model exists, UI not built
 **Security**: No concerns (public information)
 
 ## Recommendations
 
 ### Immediate Actions
+
 1. ✅ All authentication/authorization implemented
 2. ✅ Input validation comprehensive
 3. ✅ Pusher channels secured
 4. ⚠️ Add rate limiting to production
 
 ### Before Production Deployment
+
 1. Enable HTTPS (required)
 2. Set secure NEXTAUTH_SECRET (32+ chars)
 3. Configure Pusher production app
@@ -271,6 +302,7 @@ PUSHER_CLUSTER=         # Cluster (safe in client)
 6. Configure monitoring/logging
 
 ### Future Enhancements
+
 1. Add automated security tests
 2. Implement session timeout warnings
 3. Add two-factor authentication option
@@ -295,23 +327,26 @@ PUSHER_CLUSTER=         # Cluster (safe in client)
 
 ## Vulnerability Disclosure
 
-If you discover a security vulnerability, please email: [security contact]
+If you discover a security vulnerability, please [contact us](https://www.panamia.club/form/contact-us/) with the subject line "SECURITY VULNERABILITY" or email directly if you have our contact information.
 
 **Do not** create public GitHub issues for security vulnerabilities.
 
 ## Compliance Considerations
 
 ### GDPR (EU Users)
+
 - User data: Email, profile info, session notes
 - Right to access: Implement data export
 - Right to deletion: Implement account deletion
 - Consent: Required for profile visibility
 
 ### COPPA (US Users Under 13)
+
 - Not applicable: Platform for professional mentoring
 - Age verification: Recommended to add
 
 ### Accessibility
+
 - WCAG 2.1 compliance recommended
 - Screen reader support for video controls
 - Keyboard navigation for all features
@@ -321,11 +356,13 @@ If you discover a security vulnerability, please email: [security contact]
 **Last Updated**: 2025-12-04
 
 ### Automated Scans
+
 - [ ] npm audit (no high/critical vulnerabilities)
 - [ ] OWASP ZAP scan
 - [ ] Dependency check
 
 ### Manual Testing
+
 - [x] Authentication bypass attempts (failed ✅)
 - [x] Authorization bypass attempts (failed ✅)
 - [x] XSS injection attempts (blocked ✅)
@@ -334,6 +371,7 @@ If you discover a security vulnerability, please email: [security contact]
 - [ ] Pusher channel hijacking (to be tested)
 
 ### Penetration Testing
+
 - [ ] Professional security audit (recommended before launch)
 
 ## Conclusion

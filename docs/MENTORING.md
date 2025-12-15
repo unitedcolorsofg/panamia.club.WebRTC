@@ -1,5 +1,7 @@
 # Pana Mia Club - Mentoring Feature Guide
 
+> ⚠️ **PROTOTYPE STATUS**: The peer-to-peer video mentoring feature using WebRTC is currently in **prototype/experimental stage**. While functional for testing and development, it may not work in all network configurations (especially behind strict firewalls or NATs) and is not yet production-ready. TURN server configuration is planned for future releases to improve connectivity.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -35,11 +37,22 @@ The Pana Mia Club mentoring feature enables **peer-to-peer video mentoring** wit
 
 ### Technology Highlights
 
-- **WebRTC**: Direct peer-to-peer connections for video/audio
+- **WebRTC** (Prototype): Direct peer-to-peer connections for video/audio
 - **Pusher**: Real-time signaling and chat infrastructure
 - **NextAuth v5**: Secure authentication
 - **MongoDB**: Scalable data storage
 - **shadcn/ui**: Modern, accessible UI components
+
+### Current Limitations
+
+As this is a prototype implementation:
+
+- **Network restrictions**: May not work behind strict firewalls or symmetric NATs
+- **No TURN servers**: Relies on STUN only, limiting connectivity success rate
+- **Browser compatibility**: Requires modern browsers with WebRTC support
+- **Connection reliability**: P2P connections may fail in certain network configurations
+
+For production use, TURN server configuration and additional fallback mechanisms are recommended.
 
 ---
 
@@ -77,11 +90,13 @@ Check the "Enable mentoring profile" box to make yourself discoverable as a ment
 #### Step 3: Fill Out Your Profile
 
 **Mentoring Bio** (Required, 10-500 characters)
+
 - Describe your mentoring approach
 - Highlight what you can help with
 - Be authentic and encouraging
 
 Example:
+
 ```
 I'm a senior software engineer with 10 years of experience in web development.
 I love helping others learn JavaScript, React, and career navigation. My
@@ -90,24 +105,29 @@ together!
 ```
 
 **Areas of Expertise** (Required, 1-10 tags)
+
 - Add specific skills or topics
 - Use clear, searchable terms
 - Examples: "JavaScript", "Career Advice", "React", "System Design"
 
 **Languages** (Required, 1+ languages)
+
 - Specify languages you can mentor in
 - Examples: "English", "Spanish", "French"
 
 **Video Introduction URL** (Optional)
+
 - Link to a short introduction video
 - Helps potential mentees get to know you
 - Host on YouTube, Vimeo, or similar platforms
 
 **Mentoring Goals** (Optional)
+
 - Share what you hope to achieve through mentoring
 - Helps align expectations
 
 **Hourly Rate** (Optional, $0+ USD)
+
 - Set to $0 for free mentoring
 - Otherwise, specify your rate
 - Note: Payment integration not yet implemented
@@ -133,6 +153,7 @@ Use the search filters to find the right mentor:
 #### Review Mentor Profiles
 
 Each mentor card shows:
+
 - Name and profile picture
 - Mentoring bio
 - Areas of expertise (tags)
@@ -160,6 +181,7 @@ Click **Book Session** on a mentor's card to proceed to booking.
 #### Step 3: Set Duration
 
 Choose session duration:
+
 - 15 minutes (quick chat)
 - 30 minutes (focused discussion)
 - 60 minutes (standard session)
@@ -171,6 +193,7 @@ Choose session duration:
 Enter what you'd like to discuss (5-200 characters).
 
 Example:
+
 ```
 I'd like to learn about React hooks and best practices for state management
 in complex applications.
@@ -193,6 +216,7 @@ Upcoming sessions appear in the "Upcoming Sessions" section.
 Click **Join Session** to enter the video room.
 
 **Browser will request permissions:**
+
 - Camera access
 - Microphone access
 
@@ -208,20 +232,24 @@ Click "Allow" to grant permissions.
 #### Step 4: Use Video Controls
 
 **Mute/Unmute Button**
+
 - Toggles your microphone on/off
 - Red when muted, blue when active
 
 **Video On/Off Button**
+
 - Toggles your camera on/off
 - Red when off, blue when active
 
 **End Call Button**
+
 - Terminates the session
 - Returns you to sessions dashboard
 
 #### Step 5: Use Chat
 
 **Right sidebar - Chat panel:**
+
 - Type messages in the input field
 - Press Enter or click Send
 - Messages appear in real-time for both participants
@@ -230,6 +258,7 @@ Click "Allow" to grant permissions.
 #### Step 6: Take Notes
 
 **Right sidebar - Session Notes panel:**
+
 - Type notes in the textarea
 - Notes auto-save after 1 second of inactivity
 - "Saving..." indicator shows during save
@@ -249,6 +278,7 @@ Navigate to: **Mentoring** → **My Sessions**
 #### Upcoming Sessions
 
 Shows sessions that haven't occurred yet:
+
 - Date and time
 - Duration
 - Topic
@@ -259,6 +289,7 @@ Shows sessions that haven't occurred yet:
 #### Past Sessions
 
 Shows completed or cancelled sessions:
+
 - Session details
 - Status badge (completed/cancelled)
 - Session notes (if any)
@@ -283,18 +314,21 @@ The other participant will see the cancellation with your reason.
 The mentoring feature uses a hybrid architecture:
 
 **Frontend:**
+
 - Next.js 15 App Router (`app/(mentoring)/`)
 - React 19 Server and Client Components
 - shadcn/ui for UI components
 - React Hook Form + Zod for forms
 
 **Backend:**
+
 - Next.js API Routes (`app/api/mentoring/`, `app/api/pusher/`)
 - MongoDB with Mongoose for data persistence
 - NextAuth v5 for authentication
 - Pusher for real-time communication
 
 **Real-time:**
+
 - Pusher for WebRTC signaling (offer/answer/ICE)
 - Pusher presence channels for chat
 - Native WebRTC APIs for video/audio streams
@@ -341,13 +375,13 @@ Run these commands in MongoDB shell or Compass:
 
 ```javascript
 // MentorSession collection
-db.mentorSession.createIndex({ mentorEmail: 1, scheduledAt: -1 })
-db.mentorSession.createIndex({ menteeEmail: 1, scheduledAt: -1 })
-db.mentorSession.createIndex({ sessionId: 1 }, { unique: true })
+db.mentorSession.createIndex({ mentorEmail: 1, scheduledAt: -1 });
+db.mentorSession.createIndex({ menteeEmail: 1, scheduledAt: -1 });
+db.mentorSession.createIndex({ sessionId: 1 }, { unique: true });
 
 // Profile collection
-db.profile.createIndex({ 'mentoring.enabled': 1 })
-db.profile.createIndex({ 'mentoring.expertise': 1 })
+db.profile.createIndex({ 'mentoring.enabled': 1 });
+db.profile.createIndex({ 'mentoring.expertise': 1 });
 ```
 
 ### Extending the Feature
@@ -369,7 +403,7 @@ mentoring: {
 export const mentoringProfileSchema = z.object({
   // ... existing fields
   newField: z.string().optional(),
-})
+});
 ```
 
 **3. Update Form** (`app/(mentoring)/profile/edit/_components/profile-form.tsx`):
@@ -397,7 +431,7 @@ export const mentoringProfileSchema = z.object({
 **1. Add State** (`app/(mentoring)/session/[sessionId]/_components/video-room.tsx`):
 
 ```typescript
-const [customFeature, setCustomFeature] = useState(false)
+const [customFeature, setCustomFeature] = useState(false);
 ```
 
 **2. Add Handler Function**:
@@ -405,8 +439,8 @@ const [customFeature, setCustomFeature] = useState(false)
 ```typescript
 const toggleCustomFeature = () => {
   // Your logic here
-  setCustomFeature(!customFeature)
-}
+  setCustomFeature(!customFeature);
+};
 ```
 
 **3. Add Button to UI**:
@@ -424,41 +458,41 @@ Currently, the profile form has a placeholder API call. To implement:
 **Create API Route** (`app/api/mentoring/profile/route.ts`):
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth'
-import dbConnect from '@/lib/connectdb'
-import Profile from '@/lib/model/profile'
-import { mentoringProfileSchema } from '@/lib/validations/mentoring-profile'
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import dbConnect from '@/lib/connectdb';
+import Profile from '@/lib/model/profile';
+import { mentoringProfileSchema } from '@/lib/validations/mentoring-profile';
 
 export async function PATCH(request: NextRequest) {
-  const session = await auth()
+  const session = await auth();
   if (!session?.user?.email) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  await dbConnect()
+  await dbConnect();
 
-  const body = await request.json()
-  const validation = mentoringProfileSchema.safeParse(body)
+  const body = await request.json();
+  const validation = mentoringProfileSchema.safeParse(body);
 
   if (!validation.success) {
     return NextResponse.json(
       { error: 'Validation failed', details: validation.error },
       { status: 400 }
-    )
+    );
   }
 
   const updated = await Profile.findOneAndUpdate(
     { email: session.user.email },
     { mentoring: validation.data },
     { new: true, upsert: false }
-  )
+  );
 
   if (!updated) {
-    return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ profile: updated })
+  return NextResponse.json({ profile: updated });
 }
 ```
 
@@ -471,19 +505,19 @@ const onSubmit = async (data: MentoringProfileData) => {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...data, expertise, languages }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to update profile')
+      throw new Error('Failed to update profile');
     }
 
-    router.push('/mentoring/profile')
-    router.refresh()
+    router.push('/mentoring/profile');
+    router.refresh();
   } catch (error) {
-    console.error('Error updating profile:', error)
-    alert('Failed to update profile')
+    console.error('Error updating profile:', error);
+    alert('Failed to update profile');
   }
-}
+};
 ```
 
 ### Troubleshooting
@@ -491,16 +525,19 @@ const onSubmit = async (data: MentoringProfileData) => {
 #### Video Session Issues
 
 **Problem**: Camera/microphone not working
+
 - **Solution**: Check browser permissions in settings
 - **Chrome**: chrome://settings/content/camera
 - **Firefox**: about:preferences#privacy → Permissions
 
 **Problem**: "Connecting..." never completes
+
 - **Cause**: Firewall or NAT issues preventing P2P connection
 - **Solution**: TURN servers needed (future enhancement)
 - **Workaround**: Try different network (mobile hotspot)
 
 **Problem**: Poor video quality
+
 - **Cause**: Low bandwidth
 - **Solution**: Turn off camera, use audio only
 - **Check**: Run speed test (need 5+ Mbps)
@@ -508,11 +545,13 @@ const onSubmit = async (data: MentoringProfileData) => {
 #### Pusher Issues
 
 **Problem**: Chat messages not sending
+
 - **Check**: NEXT_PUBLIC_PUSHER_KEY is set correctly
 - **Check**: Pusher app has client events enabled
 - **Check**: Browser console for Pusher errors
 
 **Problem**: "Access denied" when joining session
+
 - **Cause**: Not a session participant
 - **Check**: Verify you're mentor or mentee for this session
 - **Check**: Session ID is correct
@@ -520,11 +559,13 @@ const onSubmit = async (data: MentoringProfileData) => {
 #### Database Issues
 
 **Problem**: Sessions not appearing in dashboard
+
 - **Check**: MongoDB connection string is correct
 - **Check**: User is authenticated
 - **Run**: Check MongoDB logs for errors
 
 **Problem**: Profile not saving
+
 - **Cause**: Validation errors or database connection
 - **Check**: Browser console for validation errors
 - **Check**: MongoDB is running and accessible
@@ -532,10 +573,12 @@ const onSubmit = async (data: MentoringProfileData) => {
 #### Build/Development Issues
 
 **Problem**: Module not found errors
+
 - **Solution**: `npm install`
 - **Solution**: Delete `.next` folder and rebuild
 
 **Problem**: TypeScript errors
+
 - **Solution**: Verify all types are imported
 - **Solution**: `npx tsc --noEmit` to check types
 
@@ -608,12 +651,14 @@ See inline JSDoc comments in API route files for detailed parameter documentatio
 #### GET `/api/mentoring/sessions`
 
 Query Parameters:
+
 - `role`: 'mentor' | 'mentee' | 'all'
 - `status`: 'scheduled' | 'completed' | 'all'
 
 #### POST `/api/mentoring/sessions`
 
 Request Body:
+
 ```typescript
 {
   mentorEmail: string
@@ -626,30 +671,33 @@ Request Body:
 #### PATCH `/api/mentoring/sessions/[sessionId]`
 
 Request Body:
+
 ```typescript
 // Update notes
 {
-  action: 'update_notes'
-  sessionId: string
-  notes: string
+  action: 'update_notes';
+  sessionId: string;
+  notes: string;
 }
 
 // Cancel session
 {
-  action: 'cancel'
-  sessionId: string
-  reason: string
+  action: 'cancel';
+  sessionId: string;
+  reason: string;
 }
 ```
 
 ### Pusher Events
 
 **Channel**: `private-session-{sessionId}`
+
 - `client-offer`: WebRTC offer
 - `client-answer`: WebRTC answer
 - `client-ice-candidate`: ICE candidate
 
 **Channel**: `presence-session-{sessionId}`
+
 - `client-chat-message`: Chat message
 
 ---
@@ -665,6 +713,7 @@ Request Body:
 ### Contributing
 
 Contributions welcome! Areas for improvement:
+
 1. Availability calendar UI
 2. TURN server configuration
 3. Session recording
