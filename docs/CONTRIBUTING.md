@@ -1,4 +1,5 @@
 # Pana MIA Club
+
 ## Contributing to this project
 
 One of the goals of Pana MIA Club is to engage the community in educational and supportive collaboration, and as such this repository is designed to foster that engagement while being a valuable resource for developers of all skills to comfortably hone their teamwork and code collaboration. Our code guidelines are not meant to be strict rules, but to provide a framework of learning how to participate in an organized team while implementing best practices within delivered code.
@@ -32,6 +33,7 @@ A great starting point for contributing is to review the existing code, especial
 - Sometimes in the interest of the project, we may abandon features altogether if they introduce too much complexity compared to the value that they provide.
 
 ### Design And UI:
+
 - Please re-use existing design components and elements when possible. For new features, we should always consider how we can make it consistent with the existing design, and possible re-usable for the rest of the project.
 
 - Attention should be given to the use of spacing, color, and flow of the application. While functionality it important, having a consistent brand identity and user interface will help the users of the project.
@@ -56,9 +58,7 @@ A great starting point for contributing is to review the existing code, especial
 
 - Some optimizations are considered mandatory, such as compressing large images, reducing excessive server and database calls, or removing constant polling.
 
-
 > This is a living document. As we discuss and evolve the standards of the project, we will relay that information here and update our Contribution Agreements. If you are aligned with the entirely of our guidelines, please complete our Contribution Agreement form, even if you don't have an immediate contribution to make.
-
 
 ## Contact Us
 

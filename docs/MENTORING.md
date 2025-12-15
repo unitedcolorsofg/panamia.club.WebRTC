@@ -27,13 +27,13 @@ The Pana Mia Club mentoring feature enables **peer-to-peer video mentoring** wit
 
 ### Key Features
 
-✅ **Profile Management**: Create and customize your mentoring profile
-✅ **Mentor Discovery**: Search and filter mentors by expertise and language
-✅ **Session Booking**: Schedule sessions with a calendar interface
-✅ **WebRTC Video**: High-quality peer-to-peer video calls
-✅ **Real-time Chat**: Text messaging during sessions
-✅ **Collaborative Notes**: Shared note-taking with auto-save
-✅ **Session History**: Track past and upcoming sessions
+**Profile Management**: Create and customize your mentoring profile
+**Mentor Discovery**: Search and filter mentors by expertise and language
+**Session Booking**: Schedule sessions with a calendar interface
+**WebRTC Video**: High-quality peer-to-peer video calls
+**Real-time Chat**: Text messaging during sessions
+**Collaborative Notes**: Shared note-taking with auto-save
+**Session History**: Track past and upcoming sessions
 
 ### Technology Highlights
 
@@ -357,7 +357,7 @@ MONGODB_URI=mongodb://localhost:27017/panamia_dev
 
 # NextAuth
 NEXTAUTH_SECRET=your_32_char_random_string
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=https://localhost:3000
 ```
 
 #### Pusher App Configuration

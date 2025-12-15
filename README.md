@@ -1,6 +1,6 @@
 # Pana Mia Club
 
-**Community platform for Pana Mia - connecting Latin American music lovers and artists**
+**The Future is Local - Community platform for South Florida artists and venues**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0.8-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.1-blue)](https://react.dev/)
@@ -28,10 +28,12 @@
 
 ## About
 
-Pana Mia Club is a community-driven platform built to showcase what can be accomplished for local music communities. This project is:
+Pana Mia Club is a community-driven platform for the South Florida local music scene. The project embodies "The Future is Local" - connecting artists, venues, and fans in the local community.
 
-- **Open Source**: Publicly available to encourage collaboration with local projects
-- **Community-Focused**: Built for connecting artists, venues, and music lovers
+This project is:
+
+- **Open Source**: Publicly available to encourage collaboration on local projects
+- **Community-Focused**: Built for connecting South Florida artists, venues, and music lovers
 - **Accessible**: Following WCAG guidelines and best practices
 - **Budget-Conscious**: Using cost-effective, scalable technologies
 
@@ -64,7 +66,7 @@ cp example.env .env.local
 # 4. Start development server
 npm run dev
 
-# 5. Open http://localhost:3000
+# 5. Open https://localhost:3000
 ```
 
 **Need help with environment variables?** [Contact us](https://www.panamia.club/form/contact-us/) for a developer ENV file.
@@ -77,8 +79,12 @@ Before you begin, ensure you have:
 
 - **Node.js**: Version 20.x or higher ([Download](https://nodejs.org/))
 - **npm**: Version 10.x or higher (comes with Node.js)
-- **MongoDB**: Local instance or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account
+- **MongoDB Atlas Account**: Required for search functionality ([Sign up](https://www.mongodb.com/cloud/atlas))
 - **Git**: For version control
+
+### Important Database Requirement
+
+**MongoDB Atlas is REQUIRED for full functionality.** The directory and admin search features use Atlas Search indexes (`$search` aggregation), which are not available in local MongoDB instances. Without Atlas, search functionality will not work.
 
 ### Optional Services
 
@@ -87,7 +93,7 @@ These are required for full functionality:
 - **Pusher Account**: For real-time features (free tier available)
 - **Stripe Account**: For payment processing (test mode available)
 - **BunnyCDN Account**: For file uploads (optional for local development)
-- **Email Service**: For authentication emails (NodeMailer with SMTP)
+- **Email Service**: For authentication emails (NodeMailer with SMTP or Brevo)
 
 ---
 
@@ -116,85 +122,33 @@ This will install all required packages including:
 
 ### 3. Set Up Environment Variables
 
-Create `.env.local` in the root directory:
-
-```env
-# ===================================
-# Database
-# ===================================
-MONGODB_URI=mongodb://localhost:27017/panamia_dev
-# For MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/panamia
-
-# ===================================
-# NextAuth Configuration
-# ===================================
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-min-32-characters-long
-
-# Generate a secret with:
-# openssl rand -base64 32
-
-# ===================================
-# Email Configuration (for authentication)
-# ===================================
-EMAIL_SERVER=smtp://username:password@smtp.example.com:587
-EMAIL_FROM=noreply@panamia.club
-
-# ===================================
-# Pusher (for real-time features)
-# ===================================
-PUSHER_APP_ID=your_app_id
-PUSHER_KEY=your_key
-PUSHER_SECRET=your_secret
-PUSHER_CLUSTER=us2
-
-# Public variables (exposed to client)
-NEXT_PUBLIC_PUSHER_KEY=your_key
-NEXT_PUBLIC_PUSHER_CLUSTER=us2
-
-# ===================================
-# Stripe (for payments)
-# ===================================
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PUBLIC_KEY=pk_test_...
-
-# ===================================
-# BunnyCDN (for file uploads)
-# ===================================
-BUNNYCDN_API_KEY=your_api_key
-BUNNYCDN_STORAGE_ZONE=your_zone
-BUNNYCDN_HOSTNAME=your_hostname
-
-# ===================================
-# reCAPTCHA (optional)
-# ===================================
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key
-RECAPTCHA_SECRET_KEY=your_secret_key
-```
-
-### 4. Set Up MongoDB
-
-**Option A: Local MongoDB**
+Copy the example file and configure:
 
 ```bash
-# Install MongoDB (macOS with Homebrew)
-brew tap mongodb/brew
-brew install mongodb-community
-
-# Start MongoDB
-brew services start mongodb-community
-
-# Your MONGODB_URI:
-# mongodb://localhost:27017/panamia_dev
+cp example.env .env.local
 ```
 
-**Option B: MongoDB Atlas (Recommended)**
+Edit `.env.local` with your actual credentials. See `example.env` for all available options and detailed comments.
+
+**Key configurations:**
+
+- **MONGODB_URI**: Must be MongoDB Atlas connection string (required for search)
+- **NEXTAUTH_SECRET**: Generate with `openssl rand -base64 32`
+- **NEXTAUTH_URL**: Set to `https://localhost:3000` for development
+- **PUSHER\_\***: Required for mentoring video features
+- **EMAIL*SERVER*\***: Required for authentication
+
+### 4. Set Up MongoDB Atlas
+
+**MongoDB Atlas is required** - local MongoDB will not support search features.
 
 1. Create free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 2. Create a cluster
-3. Get connection string
-4. Add to `.env.local` as `MONGODB_URI`
+3. Configure Atlas Search indexes for the `profiles` collection
+4. Get connection string and add to `.env.local` as `MONGODB_URI`
+5. Add your IP address to Atlas IP whitelist
+
+**Why Atlas?** Directory search uses `$search` aggregation which requires Atlas Search indexes.
 
 ---
 
@@ -206,10 +160,7 @@ brew services start mongodb-community
 npm run dev
 ```
 
-The application will be available at:
-
-- **Main app**: http://localhost:3000
-- **API routes**: http://localhost:3000/api/\*
+The application will be available at **https://localhost:3000**
 
 The dev server includes:
 
@@ -218,16 +169,7 @@ The dev server includes:
 - Automatic TypeScript compilation
 - Error overlay with detailed stack traces
 
-### Development with HTTPS (Optional)
-
-For testing HTTPS-only features (like WebRTC):
-
-```bash
-# Development server with HTTPS
-npm run dev
-```
-
-The server will automatically use HTTPS in development when needed.
+**Note**: HTTPS is used by default for WebRTC features (camera/microphone access).
 
 ### Code Quality
 
@@ -251,19 +193,21 @@ npx prettier --write .
 
 ### Git Hooks (Husky)
 
-Pre-commit hooks automatically run:
+Pre-commit hooks automatically run on every commit:
 
 - Prettier formatting
 - ESLint checks
 - TypeScript compilation check
 
-These ensure code quality before commits.
+These ensure code quality before commits are created.
 
 ---
 
 ## Testing
 
 ### End-to-End Tests (Playwright)
+
+Playwright tests are automatically run on every `git push` via GitHub Actions CI/CD pipeline. You can also run them locally:
 
 ```bash
 # Run all tests
@@ -278,6 +222,8 @@ npm run test:headed
 # View test report
 npm run test:report
 ```
+
+**Important**: Tests will run automatically when you push to GitHub. Check the Actions tab for results.
 
 ### Test Coverage
 
@@ -308,13 +254,13 @@ Set these in Vercel dashboard (Settings → Environment Variables):
 
 - All variables from `.env.local`
 - Set `NODE_ENV=production`
-- Ensure `NEXTAUTH_URL` points to production domain
+- Ensure `NEXTAUTH_URL` points to production domain (HTTPS)
 
 **Deployment requirements:**
 
-- HTTPS is automatically enforced in production
-- All security headers are set via middleware
-- MongoDB connection must be from allowed IPs (Atlas IP whitelist)
+- HTTPS is automatically enforced in production via middleware
+- All security headers are set automatically
+- MongoDB Atlas connection must be from allowed IPs (configure Atlas IP whitelist)
 
 ### Build Locally
 
@@ -343,7 +289,7 @@ Every branch pushed to GitHub gets a preview deployment:
 - **[Next.js 16.0.8](https://nextjs.org/)**: React framework with App Router
 - **[React 19.2.1](https://react.dev/)**: UI library
 - **[TypeScript 5.9.3](https://www.typescriptlang.org/)**: Type-safe JavaScript
-- **[MongoDB](https://www.mongodb.com/)**: NoSQL database
+- **[MongoDB Atlas](https://www.mongodb.com/cloud/atlas)**: NoSQL database (required)
 - **[Mongoose 9.0.1](https://mongoosejs.com/)**: MongoDB ODM
 
 ### UI & Styling
@@ -368,7 +314,7 @@ Every branch pushed to GitHub gets a preview deployment:
 
 ### Testing & Quality
 
-- **[Playwright](https://playwright.dev/)**: E2E testing
+- **[Playwright](https://playwright.dev/)**: E2E testing (runs on every push)
 - **[ESLint](https://eslint.org/)**: Code linting
 - **[Prettier](https://prettier.io/)**: Code formatting
 - **[Husky](https://typicode.github.io/husky/)**: Git hooks
@@ -415,22 +361,24 @@ panamia.club/
 
 ## Contributing
 
-We welcome contributions from developers of all skill levels!
+We welcome contributions from developers!
 
 ### Getting Started
 
-1. **Read the guidelines**: See [CONTRIBUTING.md](./CONTRIBUTING.md)
+1. **Read the guidelines**: See [CONTRIBUTING.md](./docs/CONTRIBUTING.md)
 2. **Check existing issues**: [GitHub Issues](https://github.com/panamiaclub/panamia.club/issues)
-3. **Join discussions**: Comment on issues you're interested in
-4. **Fork and clone**: Create your own fork to work on
+3. **Create a feature branch**: `git checkout -b feature/your-feature`
+4. **Make your changes** with clear commit messages
+5. **Push and create a Pull Request**
 
 ### Development Workflow
 
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Make your changes with clear commit messages
+1. Create a feature branch from `main`
+2. Make your changes with meaningful commit messages
 3. Write tests if applicable
 4. Run linter: `npm run lint`
-5. Push and create a Pull Request
+5. Push your branch (Playwright tests will run automatically)
+6. Create a Pull Request
 
 ### Code Standards
 
@@ -440,15 +388,6 @@ We welcome contributions from developers of all skill levels!
 - Add comments for complex logic
 - Update documentation if needed
 
-### Areas for Contribution
-
-- **Bug fixes**: Check open issues
-- **Features**: Propose new features in discussions
-- **Documentation**: Improve guides and comments
-- **Tests**: Add test coverage
-- **Accessibility**: Improve WCAG compliance
-- **Performance**: Optimize queries and rendering
-
 ---
 
 ## Documentation
@@ -457,6 +396,7 @@ We welcome contributions from developers of all skill levels!
 - **[Security Audit](./docs/SECURITY_AUDIT.md)**: Security architecture and considerations
 - **[Testing Checklist](./docs/TESTING_CHECKLIST.md)**: Manual testing procedures
 - **[FLOSS Alternatives](./docs/FLOSS-ALTERNATIVES.md)**: Technology choices and philosophy
+- **[Contributing Guide](./docs/CONTRIBUTING.md)**: How to contribute to the project
 
 ---
 
@@ -475,41 +415,25 @@ See [LICENSE](./LICENSE) file for details.
 
 ---
 
-## Acknowledgments
-
-Built with ❤️ by the Pana Mia Club community. Special thanks to all contributors who help make this project possible.
-
-**Notable Technologies:**
-
-- Next.js team for the amazing framework
-- Vercel for hosting and deployment
-- MongoDB for database infrastructure
-- Open source community for incredible tools
-
----
-
 ## Project Status
 
-- **Current Version**: 0.1.0 (Beta)
-- **Status**: Active Development
-- **Production**: Deployed at panamia.club
-- **Roadmap**: See [GitHub Projects](https://github.com/panamiaclub/panamia.club/projects)
+**Status**: Active Development
+**Production**: Deployed at panamia.club
+**Roadmap**: See [GitHub Projects](https://github.com/panamiaclub/panamia.club/projects)
 
 ### Recent Updates
 
-- ✅ Migrated to Next.js 16 App Router
-- ✅ Implemented Flower Power psychedelic theme
-- ✅ Added comprehensive E2E testing with Playwright
-- ✅ Upgraded to React 19 and NextAuth v5
-- ✅ Removed Google Analytics (privacy-first)
+- Migrated to Next.js 16 App Router
+- Implemented Flower Power psychedelic theme
+- Added comprehensive E2E testing with Playwright
+- Upgraded to React 19 and NextAuth v5
+- Removed Google Analytics (privacy-first)
+- Enforced HTTPS-only connections
 
 ### Experimental Features
 
-- **Peer-to-Peer Mentoring**: Video calling with WebRTC (prototype stage)
-- **Real-time Collaboration**: Shared notes and chat during sessions
-
-**Note**: The WebRTC-based peer-to-peer video mentoring feature is currently in **prototype stage** and under active development. It may not work in all network configurations and is not yet production-ready.
+**Peer-to-Peer Mentoring**: Video calling with WebRTC is currently in **prototype stage** and under active development. It may not work in all network configurations and is not yet production-ready. Real-time collaboration includes shared notes and chat during sessions.
 
 ---
 
-**Questions?** Feel free to [contact us](https://www.panamia.club/form/contact-us/) or open an issue!
+**Questions?** [Contact us](https://www.panamia.club/form/contact-us/) or open an issue!
