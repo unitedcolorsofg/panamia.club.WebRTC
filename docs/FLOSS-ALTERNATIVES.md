@@ -191,6 +191,65 @@ We're keeping MongoDB despite SSPL concerns because:
 
 ---
 
+### MongoDB Atlas Search (Search Engine)
+
+**Status:** Keeping (core feature, free, cost-effective)
+
+**Why we're keeping it:**
+
+Panamia.club is a **local business directory** where search quality directly impacts the core value proposition. Atlas Search provides capabilities essential for directory discovery:
+
+- **Fuzzy matching**: Users can make typos ("photografer" → "photographer")
+- **Relevance scoring**: Custom weighted fields (names ranked 5x higher than bio text)
+- **Multi-field search**: Single query searches across name, tags, details, background
+- **Complex filtering**: Combines text search with location, category, and mentoring filters
+- **Already implemented**: Full search infrastructure exists in `lib/server/directory.ts`
+
+**Cost Analysis:**
+
+| Solution                    | Monthly Cost | Features                          | Migration Effort |
+| --------------------------- | ------------ | --------------------------------- | ---------------- |
+| **Atlas Search (current)**  | $0           | Fuzzy, scoring, all features      | N/A              |
+| Basic MongoDB text indexes  | $0           | ❌ No fuzzy, ❌ No custom scoring | Medium           |
+| Algolia                     | $50-100      | Similar features                  | High             |
+| Elasticsearch (self-hosted) | $20-50       | Similar features                  | Very High        |
+| Typesense (self-hosted)     | $10-30       | Similar features                  | Very High        |
+| MeiliSearch                 | $0           | Self-hosted, good features        | Very High        |
+
+**FLOSS Alternatives:**
+
+| Alternative        | License    | Pros                                   | Cons                              | Migration Effort |
+| ------------------ | ---------- | -------------------------------------- | --------------------------------- | ---------------- |
+| **MeiliSearch**    | MIT        | Excellent fuzzy search, typo tolerance | Self-hosting, separate deployment | Very High        |
+| **Typesense**      | GPL-3.0    | Fast, typo tolerance, good relevance   | Self-hosting required             | Very High        |
+| **Elasticsearch**  | SSPL/Agpl  | Feature-rich, industry standard        | Complex, resource-heavy           | Very High        |
+| **MongoDB $text**  | SSPL       | Built-in, no extra service             | No fuzzy, poor relevance          | Medium           |
+| **PostgreSQL FTS** | PostgreSQL | Mature full-text search                | Requires DB migration             | Very High        |
+
+**Trade-offs:**
+
+Removing Atlas Search would require either:
+
+1. **Degraded UX**: Basic `$text` search loses fuzzy matching and relevance scoring
+2. **Added complexity**: Self-host MeiliSearch/Typesense/Elasticsearch (20-40 hours + infrastructure)
+3. **Added cost**: Use Algolia ($50-100/month)
+
+**Current Stance:**
+
+We're keeping Atlas Search because:
+
+1. **Free**: Included in MongoDB Atlas M0 free tier
+2. **Core feature**: Search quality is essential for directory discovery
+3. **Already implemented**: Complexity already absorbed
+4. **Cost-effective**: Alternatives cost $50-100/month or 20-40 hours dev time
+5. **Low lock-in**: Data is standard MongoDB, only search queries need rewriting
+
+The tradeoff is "developers need Atlas for local dev" - a one-time 10-minute setup vs. ongoing product quality degradation or significant migration costs.
+
+**Recommendation:** Keep Atlas Search. If migrating away from MongoDB entirely (to PostgreSQL/FerretDB), consider MeiliSearch or Typesense as FLOSS search alternatives.
+
+---
+
 ## Decision Framework
 
 When evaluating new dependencies or services, use this framework:
@@ -229,12 +288,13 @@ Proprietary solutions acceptable when:
 
 ## Future Evaluation Dates
 
-| Service  | Next Review | Reason                        |
-| -------- | ----------- | ----------------------------- |
-| Pusher   | Q2 2026     | Check Soketi maturity         |
-| Stripe   | Q4 2025     | Review payment landscape      |
-| BunnyCDN | Q1 2026     | Evaluate MinIO/R2 costs       |
-| MongoDB  | Q3 2025     | FerretDB production readiness |
+| Service      | Next Review | Reason                        |
+| ------------ | ----------- | ----------------------------- |
+| Pusher       | Q2 2026     | Check Soketi maturity         |
+| Stripe       | Q4 2025     | Review payment landscape      |
+| BunnyCDN     | Q1 2026     | Evaluate MinIO/R2 costs       |
+| MongoDB      | Q3 2025     | FerretDB production readiness |
+| Atlas Search | Q3 2025     | Review with MongoDB decision  |
 
 ---
 
