@@ -7,6 +7,7 @@ import {
   IconFileDescription,
   IconDashboard,
   IconEdit,
+  IconUsers,
 } from '@tabler/icons-react';
 
 import styles from './AdminHeader.module.css';
@@ -37,6 +38,12 @@ export default function AdminMenu() {
             <AdminButton href="/account/admin/podcasts">
               <IconFileDescription height="16" />
               Podcasts
+            </AdminButton>
+          </li>
+          <li>
+            <AdminButton href="/account/admin/mentoring">
+              <IconUsers height="16" />
+              Mentoring
             </AdminButton>
           </li>
           <li>
