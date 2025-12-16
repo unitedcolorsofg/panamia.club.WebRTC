@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import AdminMenu from '@/components/Admin/AdminHeader';
 import {
   IconUsers,
   IconCalendar,
@@ -159,10 +160,11 @@ export default function MentoringDashboard() {
       : 0;
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-8">
+    <main className="container mx-auto max-w-7xl px-4 py-8">
+      <AdminMenu />
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Mentoring Dashboard</h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Platform metrics and mentoring program performance
         </p>
       </div>
@@ -300,7 +302,7 @@ export default function MentoringDashboard() {
       {/* Sessions Over Time Chart */}
       <Card className="mb-8">
         <CardHeader
-          className="cursor-pointer hover:bg-gray-50"
+          className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
           onClick={() => toggleSection('sessionsOverTime')}
         >
           <div className="flex items-center justify-between">
@@ -351,7 +353,7 @@ export default function MentoringDashboard() {
       {/* Session Status Pie Chart */}
       <Card className="mb-8">
         <CardHeader
-          className="cursor-pointer hover:bg-gray-50"
+          className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
           onClick={() => toggleSection('sessionsByStatus')}
         >
           <div className="flex items-center justify-between">
@@ -401,7 +403,7 @@ export default function MentoringDashboard() {
       {/* Top Expertise Bar Chart */}
       <Card className="mb-8">
         <CardHeader
-          className="cursor-pointer hover:bg-gray-50"
+          className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
           onClick={() => toggleSection('topExpertise')}
         >
           <div className="flex items-center justify-between">
@@ -567,6 +569,6 @@ export default function MentoringDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }
