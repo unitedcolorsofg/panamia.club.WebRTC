@@ -17,21 +17,24 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
       - name: Build Next.js app
-        run: npm run build
+        run: yarn build
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: http://localhost:3000
 
       - name: Run Playwright tests
-        run: npm run test
+        run: yarn test
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
