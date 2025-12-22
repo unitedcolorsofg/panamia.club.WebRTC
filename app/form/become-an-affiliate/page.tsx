@@ -73,7 +73,7 @@ export default function BecomeAnAffiliatePage() {
   if (status === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground text-lg">Loading...</p>
       </div>
     );
   }
@@ -81,7 +81,7 @@ export default function BecomeAnAffiliatePage() {
   // Redirect to sign in if not authenticated
   if (status === 'unauthenticated') {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-background to-muted/20">
+      <div className="from-background to-muted/20 flex min-h-screen flex-col items-center justify-center bg-gradient-to-b">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
@@ -100,13 +100,13 @@ export default function BecomeAnAffiliatePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-muted/20">
+    <div className="from-background to-muted/20 flex min-h-screen flex-col bg-gradient-to-b">
       <div className="container mx-auto max-w-2xl px-4 py-12">
         {/* Logo */}
         <div className="mb-8 flex justify-center">
           <Link href="/">
             <Image
-              src="/img/home/logoPanaMIA2.png"
+              src="/logos/pana_logo_long_blue.png"
               alt="Pana MIA Club"
               width={300}
               height={150}
@@ -119,7 +119,7 @@ export default function BecomeAnAffiliatePage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-bold">Become A ComPana</h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-muted-foreground text-lg">
             Complete the form below to join our ComPana Affiliate Program and
             start earning awesome rewards!
           </p>
@@ -137,7 +137,7 @@ export default function BecomeAnAffiliatePage() {
             <form onSubmit={submitAffiliateTOS} className="space-y-6">
               {/* Terms Summary */}
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Please review the Full{' '}
                   <Link
                     href="/doc/affiliate-terms-and-conditions"
@@ -184,7 +184,7 @@ export default function BecomeAnAffiliatePage() {
                 <div className="flex-1">
                   <Label
                     htmlFor="accept-tos"
-                    className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     I have read and agree to the Affiliate Terms and Conditions{' '}
                     <span className="text-destructive">*</span>
@@ -197,7 +197,7 @@ export default function BecomeAnAffiliatePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full bg-pana-pink hover:bg-pana-pink/90 md:w-auto"
+                  className="bg-pana-pink hover:bg-pana-pink/90 w-full md:w-auto"
                   disabled={isSubmitting || !acceptTOS}
                 >
                   {isSubmitting ? (

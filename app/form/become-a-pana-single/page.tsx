@@ -115,13 +115,13 @@ export default function BecomeAPanaSinglePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-muted/20">
+    <div className="from-background to-muted/20 flex min-h-screen flex-col bg-gradient-to-b">
       <div className="container mx-auto max-w-3xl px-4 py-12">
         {/* Logo */}
         <div className="mb-8 flex justify-center">
           <Link href="/">
             <Image
-              src="/img/home/logoPanaMIA2.png"
+              src="/logos/pana_logo_long_blue.png"
               alt="Pana MIA Club"
               width={300}
               height={150}
@@ -161,10 +161,10 @@ export default function BecomeAPanaSinglePage() {
               create more than one profile if you have separate projects - just
               make sure to use a different email.
             </p>
-            <p className="text-sm italic text-muted-foreground">
+            <p className="text-muted-foreground text-sm italic">
               If you have questions please reach out to us at hola@panamia.club
             </p>
-            <p className="text-sm text-destructive">
+            <p className="text-destructive text-sm">
               * Indicates required field
             </p>
           </div>
@@ -189,7 +189,7 @@ export default function BecomeAPanaSinglePage() {
                   required
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   The email that will be used for signing in
                 </p>
               </div>
@@ -210,7 +210,7 @@ export default function BecomeAPanaSinglePage() {
                   required
                   onChange={(e) => setName(e.target.value)}
                 />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   This name will display as the Title of your profile
                 </p>
               </div>
@@ -222,7 +222,7 @@ export default function BecomeAPanaSinglePage() {
                   native of South Florida?{' '}
                   <span className="text-destructive">*</span>
                 </Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   South Florida is Miami-Dade, Broward and Palm Beach County
                 </p>
                 <RadioGroup
@@ -407,7 +407,7 @@ export default function BecomeAPanaSinglePage() {
                   required
                   onChange={(e) => setTags(e.target.value)}
                 />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Comma-separated keywords for search
                 </p>
               </div>
@@ -484,7 +484,7 @@ export default function BecomeAPanaSinglePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full bg-pana-pink hover:bg-pana-pink/90 md:w-auto"
+                  className="bg-pana-pink hover:bg-pana-pink/90 w-full md:w-auto"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

@@ -24,13 +24,13 @@ export const metadata: Metadata = {
 
 export default function LinksPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-muted/20">
+    <div className="from-background to-muted/20 flex min-h-screen flex-col bg-gradient-to-b">
       <div className="container mx-auto max-w-2xl px-4 py-12">
         {/* Logo and Header */}
         <div className="mb-8 text-center">
           <div className="mb-6 flex justify-center">
             <Image
-              src="/img/home/logoPanaMIA2.png"
+              src="/logos/pana_logo_long_blue.png"
               alt="Pana MIA Club Logo"
               width={200}
               height={100}
@@ -39,7 +39,7 @@ export default function LinksPage() {
             />
           </div>
           <h1 className="mb-2 text-3xl font-bold">Pana MIA Club</h1>
-          <p className="text-lg text-muted-foreground">The Future is Local</p>
+          <p className="text-muted-foreground text-lg">The Future is Local</p>
         </div>
 
         {/* Social Media Icons */}
@@ -217,7 +217,7 @@ export default function LinksPage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground mt-12 text-center text-sm">
           <p>&copy; {new Date().getFullYear()} Pana MIA Club</p>
           <p className="mt-1">South Florida&apos;s Local Community Network</p>
         </div>

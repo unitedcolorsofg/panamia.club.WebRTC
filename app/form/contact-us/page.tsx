@@ -160,7 +160,7 @@ function ContactForm() {
         <div className="mb-8 flex justify-center">
           <Link href="/">
             <Image
-              src="/img/home/logoPanaMIA2.png"
+              src="/logos/pana_logo_long_blue.png"
               alt="Pana MIA Club"
               width={300}
               height={150}
