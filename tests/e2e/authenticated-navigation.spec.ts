@@ -14,7 +14,7 @@ test.describe('Authenticated User Navigation', () => {
     await page.waitForLoadState('networkidle');
 
     const url = page.url();
-    const isSignin = url.includes('/api/auth/signin');
+    const isSignin = url.includes('/signin'); // Updated: custom sign-in page
     const isAuthRoute = url.includes('/account/user/edit');
     const isHomeRoute =
       url === 'http://localhost:3000/' ||
