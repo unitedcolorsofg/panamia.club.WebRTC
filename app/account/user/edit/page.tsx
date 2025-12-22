@@ -99,7 +99,7 @@ export default function UserEditPage() {
                   className="bg-gray-100 dark:bg-gray-800"
                 />
                 <p className="text-sm text-gray-500">
-                  You can't change your signed-in email address.
+                  Email verified. Sign out to use a different account.
                 </p>
               </div>
 

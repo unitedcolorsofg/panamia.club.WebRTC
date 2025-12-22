@@ -42,7 +42,6 @@ import {
 
 import styles from './MainHeader.module.css';
 import CallToActionBar from './CallToActionBar';
-import { getUserSession } from '../lib/user';
 import PanaLogo from './PanaLogo';
 import PanaButton from './PanaButton';
 import { ThemeToggle } from './theme-toggle';
@@ -77,23 +76,9 @@ export default function MainHeader() {
   const handleSignOut = () => signOut({ redirect: true, callbackUrl: '/' });
   const [menu_active, setMenuActive] = useState(false);
   const activeClasses = classNames(styles.navList, styles.navListActive);
-  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Check admin status
-  useEffect(() => {
-    if (session?.user?.email) {
-      fetch('/api/admin/checkAdminStatus', {
-        headers: { Accept: 'application/json' },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.success && data?.data?.admin_status) {
-            setIsAdmin(true);
-          }
-        })
-        .catch((err) => console.error('Admin check failed:', err));
-    }
-  }, [session]);
+  // Get admin status directly from session (no API call needed)
+  const isAdmin = session?.user?.isAdmin || false;
 
   interface NavStyle {
     padding?: string;
@@ -154,11 +139,6 @@ export default function MainHeader() {
 
   async function onUserClick(e: React.MouseEvent) {
     e.stopPropagation();
-    const userSessionData = await getUserSession();
-    // console.log("userSession", userSession);
-    if (userSessionData?.status?.role == 'admin') {
-      setIsAdmin(true);
-    }
     const dialogUser = document.getElementById(
       'dialog-user-mainheader'
     ) as HTMLDialogElement;
