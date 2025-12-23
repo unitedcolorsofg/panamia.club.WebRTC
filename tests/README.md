@@ -26,7 +26,23 @@ npm run test:report
 
 ## Pre-commit Integration
 
-Tests run automatically on every commit via Husky pre-commit hook. Commits will be blocked if tests fail.
+A Husky pre-commit hook automatically checks test coverage for modified pages:
+
+- When you modify `app/**/page.tsx` files, the hook searches for corresponding test coverage
+- If a modified page lacks test coverage, you'll see a warning (non-blocking)
+- Example warning:
+
+  ```
+  ⚠️  WARNING: Modified pages may not have Playwright test coverage:
+
+    📄 app/mentoring/profile/page.tsx → /mentoring/profile
+
+  💡 Consider adding test cases to tests/e2e/
+  ```
+
+- This reminder helps keep tests from becoming an afterthought
+
+**Note:** Warnings don't block commits - they're just gentle reminders to maintain test coverage.
 
 ## CI/CD Integration
 
@@ -67,10 +83,38 @@ See `.github/workflows/playwright.yml` for CI configuration.
 
 ## Adding New Tests
 
-1. Create a new `.spec.ts` file in `tests/e2e/`
-2. Import Playwright test utilities: `import { test, expect } from '@playwright/test';`
-3. Write tests using Playwright's API
-4. Tests will automatically run on commit and in CI
+### Quick Start
+
+1. **Interactive mode** (recommended):
+
+   ```bash
+   npm run test:ui
+   ```
+
+   Use Playwright's UI to record and generate tests
+
+2. **Manual creation**:
+   - Add tests to existing suites: `tests/e2e/public-navigation.spec.ts`, `authenticated-navigation.spec.ts`, or `critical-paths.spec.ts`
+   - Or create a new `.spec.ts` file in `tests/e2e/`
+
+### Test Organization
+
+Tests are organized by **feature/flow** rather than one-test-per-page:
+
+- **`public-navigation.spec.ts`** - Public pages (home, about, directory, etc.)
+- **`authenticated-navigation.spec.ts`** - Auth-required routes (account, profile editing)
+- **`critical-paths.spec.ts`** - End-to-end user journeys (signup, search → profile, donations)
+
+**When adding coverage for a new page**, add it to the appropriate existing suite rather than creating a new file (unless it represents a new category).
+
+### Coverage Guidelines
+
+- **Every page route** should have at least one test that navigates to it
+- **Critical user flows** should have end-to-end tests
+- **Authentication redirects** should be tested for protected routes
+- **Form submissions** should validate success/error states
+
+The pre-commit hook will remind you if a modified page lacks coverage.
 
 ## Configuration
 

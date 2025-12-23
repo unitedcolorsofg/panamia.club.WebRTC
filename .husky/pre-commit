@@ -1,1 +1,39 @@
+#!/bin/sh
+
+echo ""
+echo "🔍 Checking Playwright test coverage for modified pages..."
+
+# Get staged app pages  
+STAGED_PAGES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^app/.*page\.tsx$')
+
+if [ -n "$STAGED_PAGES" ]; then
+  HAS_WARNINGS=0
+  
+  echo "$STAGED_PAGES" | while IFS= read -r page; do
+    # Extract route
+    ROUTE=$(echo "$page" | sed 's|^app||' | sed 's|/page\.tsx$||')
+    [ -z "$ROUTE" ] && ROUTE="/"
+    
+    # Check for test coverage
+    if ! grep -rq "goto(['\"\`]$ROUTE['\"\`])" tests/ 2>/dev/null && \
+       ! grep -rq "goto(['\"\`].*$ROUTE" tests/ 2>/dev/null; then
+      if [ "$HAS_WARNINGS" = "0" ]; then
+        echo ""
+        echo "⚠️  WARNING: Modified pages may not have Playwright test coverage:"
+        echo ""
+        HAS_WARNINGS=1
+      fi
+      echo "  📄 $page → $ROUTE"
+    fi
+  done
+  
+  if [ "$HAS_WARNINGS" = "1" ]; then
+    echo ""
+    echo "💡 Consider adding test cases to tests/e2e/"
+    echo "   Run 'npm run test:ui' to create tests interactively"
+    echo ""
+  fi
+fi
+
+# Run linting
 npx lint-staged

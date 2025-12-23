@@ -95,6 +95,181 @@ function text(params: { url: string; host: string }) {
   return `Sign in to Pana MIA\n\n${url}\n\nThis link will expire in 24 hours and can only be used once.\n\nIf you didn't request this email, you can safely ignore it.\n`;
 }
 
+// Email template for email migration verification (sent to new email)
+export function emailMigrationVerificationHtml(params: {
+  url: string;
+  oldEmail: string;
+  newEmail: string;
+}) {
+  const { url, oldEmail, newEmail } = params;
+  const escapedOldEmail = oldEmail.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const escapedNewEmail = newEmail.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const brandColor = '#4ab3ea';
+  const buttonBg = '#ec4899';
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 600px;">
+          <tr>
+            <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 3px solid ${brandColor};">
+              <h1 style="margin: 0; color: #111827; font-size: 28px; font-weight: 700;">Pana MIA</h1>
+              <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">South Florida's Creative Community</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 22px; font-weight: 600;">Verify Your Email Migration</h2>
+
+              <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                You requested to migrate your Pana MIA account email from <strong>${escapedOldEmail}</strong> to <strong>${escapedNewEmail}</strong>.
+              </p>
+
+              <div style="margin: 0 0 30px 0; padding: 20px; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; color: #92400e; font-size: 14px; font-weight: 600;">Important:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #92400e; font-size: 14px; line-height: 1.6;">
+                  <li>This link expires in <strong>5 minutes</strong></li>
+                  <li>You will be signed out of all devices</li>
+                  <li>A confirmation will be sent to your old email</li>
+                </ul>
+              </div>
+
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding: 20px 0;">
+                    <a href="${url}" style="display: inline-block; background-color: ${buttonBg}; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      Complete Email Migration
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 30px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                Or copy and paste this link into your browser:
+              </p>
+              <p style="margin: 10px 0 0 0; color: ${brandColor}; font-size: 13px; word-break: break-all; line-height: 1.6;">
+                ${url}
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 30px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
+              <p style="margin: 0; color: #9ca3af; font-size: 13px; line-height: 1.6;">
+                If you didn't request this email migration, please ignore this email and contact us immediately.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+}
+
+export function emailMigrationVerificationText(params: {
+  url: string;
+  oldEmail: string;
+  newEmail: string;
+}) {
+  const { url, oldEmail, newEmail } = params;
+  return `Verify Your Email Migration\n\nYou requested to migrate your Pana MIA account email from ${oldEmail} to ${newEmail}.\n\nImportant:\n- This link expires in 5 minutes\n- You will be signed out of all devices\n- A confirmation will be sent to your old email\n\nClick here to complete the migration:\n${url}\n\nIf you didn't request this, please ignore this email and contact us immediately.`;
+}
+
+// Email template for migration confirmation (sent to old email)
+export function emailMigrationConfirmationHtml(params: {
+  oldEmail: string;
+  newEmail: string;
+  timestamp: string;
+}) {
+  const { oldEmail, newEmail, timestamp } = params;
+  const escapedOldEmail = oldEmail.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const escapedNewEmail = newEmail.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const brandColor = '#4ab3ea';
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0;">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 600px;">
+          <tr>
+            <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 3px solid ${brandColor};">
+              <h1 style="margin: 0; color: #111827; font-size: 28px; font-weight: 700;">Pana MIA</h1>
+              <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">South Florida's Creative Community</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 22px; font-weight: 600;">Your Account Email Was Changed</h2>
+
+              <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                Your Pana MIA account email was successfully migrated on <strong>${timestamp}</strong>.
+              </p>
+
+              <div style="margin: 0 0 30px 0; padding: 20px; background-color: #eff6ff; border-left: 4px solid ${brandColor}; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; color: #1e40af; font-size: 14px;"><strong>Previous email:</strong> ${escapedOldEmail}</p>
+                <p style="margin: 0; color: #1e40af; font-size: 14px;"><strong>New email:</strong> ${escapedNewEmail}</p>
+              </div>
+
+              <div style="margin: 0 0 20px 0; padding: 20px; background-color: #fef2f2; border-left: 4px solid #dc2626; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px; font-weight: 600;">If you didn't authorize this change:</p>
+                <p style="margin: 0; color: #991b1b; font-size: 14px; line-height: 1.6;">
+                  Please contact us immediately at <a href="mailto:hola@panamia.club" style="color: #dc2626; text-decoration: underline;">hola@panamia.club</a>. Your account security may be compromised.
+                </p>
+              </div>
+
+              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                You have been signed out of all devices. Please sign in with your new email address to continue using Pana MIA.
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 30px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
+              <p style="margin: 0; color: #9ca3af; font-size: 13px; line-height: 1.6;">
+                This is an automated security notification. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+}
+
+export function emailMigrationConfirmationText(params: {
+  oldEmail: string;
+  newEmail: string;
+  timestamp: string;
+}) {
+  const { oldEmail, newEmail, timestamp } = params;
+  return `Your Account Email Was Changed\n\nYour Pana MIA account email was successfully migrated on ${timestamp}.\n\nPrevious email: ${oldEmail}\nNew email: ${newEmail}\n\nIf you didn't authorize this change, please contact us immediately at hola@panamia.club. Your account security may be compromised.\n\nYou have been signed out of all devices. Please sign in with your new email address to continue using Pana MIA.`;
+}
+
 const mongoAdapterOptions = {
   collections: {
     Accounts: 'nextauth_accounts',
@@ -341,6 +516,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async sendVerificationRequest({ identifier: email, url, provider }) {
         const { host } = new URL(url);
         const transport = await provider.server;
+        // @ts-ignore - NextAuth type compatibility issue with nodemailer transport
         const result = await transport.sendMail({
           to: email,
           from: provider.from,

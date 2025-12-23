@@ -6,17 +6,40 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { useToast } from '@/hooks/use-toast';
 import { getUserSession, saveUserSession } from '@/lib/user';
 import { UserInterface } from '@/lib/interfaces';
+import { Mail, AlertCircle } from 'lucide-react';
 
 export default function UserEditPage() {
   const { data: session } = useSession();
+  const { toast } = useToast();
   const [sessionEmail, setSessionEmail] = useState('');
   const [sessionZipCode, setSessionZipCode] = useState('');
   const [sessionName, setSessionName] = useState('');
   const [userData, setUserData] = useState({} as UserInterface);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [showMigrationDialog, setShowMigrationDialog] = useState(false);
 
   const setUserSession = async () => {
     const userSession = await getUserSession();
@@ -51,6 +74,53 @@ export default function UserEditPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     updateUserSession();
+  };
+
+  const handleEmailMigration = async () => {
+    if (!newEmail || newEmail === sessionEmail) {
+      toast({
+        title: 'Invalid Email',
+        description: 'Please enter a different email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsMigrating(true);
+    setShowMigrationDialog(false);
+
+    try {
+      const response = await fetch('/api/user/request-email-migration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Verification Email Sent',
+          description: `Check your inbox at ${newEmail}. The link expires in 5 minutes.`,
+        });
+        setNewEmail('');
+      } else {
+        toast({
+          title: 'Migration Failed',
+          description: data.error || 'Failed to initiate email migration.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      });
+      console.error('Email migration error:', error);
+    } finally {
+      setIsMigrating(false);
+    }
   };
 
   useEffect(() => {
@@ -157,6 +227,118 @@ export default function UserEditPage() {
                 </div>
               )}
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Email Migration Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Advanced Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="change-email">
+                <AccordionTrigger>Change Email Address</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4 pt-2">
+                    <div className="rounded-lg bg-amber-50 p-4 dark:bg-amber-950">
+                      <div className="flex gap-2">
+                        <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                        <div className="space-y-2 text-sm">
+                          <p className="font-semibold text-amber-800 dark:text-amber-200">
+                            Important Information
+                          </p>
+                          <ul className="list-disc space-y-1 pl-5 text-amber-700 dark:text-amber-300">
+                            <li>
+                              You will receive a verification link at your new
+                              email address
+                            </li>
+                            <li>The verification link expires in 5 minutes</li>
+                            <li>
+                              You will be signed out of all devices when the
+                              migration completes
+                            </li>
+                            <li>
+                              A confirmation will be sent to your current email
+                              address
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="new-email">New Email Address</Label>
+                      <Input
+                        id="new-email"
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="Enter new email address"
+                        disabled={isMigrating}
+                      />
+                    </div>
+
+                    <AlertDialog
+                      open={showMigrationDialog}
+                      onOpenChange={setShowMigrationDialog}
+                    >
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          disabled={!newEmail || isMigrating}
+                        >
+                          {isMigrating
+                            ? 'Sending Verification...'
+                            : 'Change Email'}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Confirm Email Migration
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="space-y-3">
+                            <p>
+                              <strong>Current email:</strong> {sessionEmail}
+                            </p>
+                            <p>
+                              <strong>New email:</strong> {newEmail}
+                            </p>
+                            <div className="rounded-lg bg-amber-50 p-4 dark:bg-amber-950">
+                              <p className="mb-2 font-semibold text-amber-900 dark:text-amber-100">
+                                What happens next:
+                              </p>
+                              <ol className="list-decimal space-y-1 pl-5 text-sm text-amber-800 dark:text-amber-200">
+                                <li>
+                                  We'll send a verification link to{' '}
+                                  <strong>{newEmail}</strong>
+                                </li>
+                                <li>You must click it within 5 minutes</li>
+                                <li>You'll be signed out of all devices</li>
+                                <li>
+                                  A confirmation will be sent to{' '}
+                                  <strong>{sessionEmail}</strong>
+                                </li>
+                              </ol>
+                            </div>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleEmailMigration}>
+                            Send Verification Link
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
       </div>
