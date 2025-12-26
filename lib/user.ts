@@ -47,6 +47,7 @@ export const unguardUser = (user: any) => {
   // only send safe for public fields
   return {
     ...{ email: user.email },
+    ...{ screenname: user.screenname },
     ...{ name: user.name },
     ...{
       status: {

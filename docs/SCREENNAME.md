@@ -1,0 +1,241 @@
+# Screenname Feature
+
+This document describes the screenname feature, which provides users with a unique, editable identifier for attribution across community features such as articles, comments, and other contributions.
+
+## Overview
+
+Screennames are semi-public identifiers that:
+
+- Are unique across all users (case-insensitive)
+- Can be changed at any time with retroactive effect
+- Are required for making public contributions
+- Link to the user's profile page when one exists
+
+## Privacy Model
+
+| Field          | Visibility                                           |
+| -------------- | ---------------------------------------------------- |
+| **Screenname** | Public - displayed on all contributions              |
+| **Name**       | Public but optional - displayed alongside screenname |
+| **Email**      | Private - never shown to non-admin users             |
+
+## Data Model
+
+### User Schema Addition
+
+```javascript
+// lib/model/user.ts
+screenname: {
+  type: String,
+  unique: true,
+  sparse: true,  // allows multiple null values
+}
+
+// Case-insensitive unique index
+userSchema.index(
+  { screenname: 1 },
+  { unique: true, sparse: true, collation: { locale: 'en', strength: 2 } }
+);
+```
+
+### Validation Rules
+
+- **Length**: 3-24 characters
+- **Characters**: Alphanumeric, underscores (`_`), and hyphens (`-`) only
+- **Format**: Cannot start or end with underscore or hyphen
+- **Uniqueness**: Case-insensitive (e.g., "JohnDoe" and "johndoe" are considered the same)
+- **Reserved words**: Blocked screennames include `admin`, `pana`, `support`, `system`, etc.
+
+## API Endpoints
+
+### Check Screenname Availability
+
+```
+GET /api/user/screenname/check?name=desired_screenname
+```
+
+**Response:**
+
+```json
+{
+  "available": true
+}
+```
+
+or
+
+```json
+{
+  "available": false,
+  "error": "This screenname is already taken"
+}
+```
+
+**Notes:**
+
+- No authentication required (for real-time validation in forms)
+- Validates format before checking database
+
+### Set/Update Screenname
+
+```
+POST /api/user/screenname/set
+Content-Type: application/json
+
+{
+  "screenname": "desired_screenname"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "screenname": "desired_screenname"
+  }
+}
+```
+
+**Notes:**
+
+- Requires authentication
+- Validates format, reserved words, and uniqueness
+- Can be used to set initial screenname or update existing
+
+### Author Lookup
+
+```
+GET /api/user/author/{userId}
+```
+
+**Response:**
+
+```json
+{
+  "screenname": "user_screenname",
+  "name": "User Name",
+  "profileSlug": "profile-slug",
+  "verified": true
+}
+```
+
+or for deleted/non-existent users:
+
+```json
+{
+  "deleted": true
+}
+```
+
+**Notes:**
+
+- Public endpoint (no auth required)
+- Returns profile verification status when user has a profile
+
+## Components
+
+### AuthorBadge
+
+Displays author attribution with optional verification badge and profile link.
+
+```tsx
+import AuthorBadge from '@/components/AuthorBadge';
+
+<AuthorBadge
+  authorId="user_id_here"
+  showVerification={true} // default: true
+/>;
+```
+
+**Behavior:**
+
+- Shows loading skeleton while fetching author data
+- Shows "Former Member" for deleted accounts or missing authors
+- Links to profile page when user has an active profile
+- Displays verification badge (checkmark) when profile is Pana verified
+
+### ScreennamePrompt
+
+Modal dialog for setting screenname, used for lazy creation when users attempt actions requiring attribution.
+
+```tsx
+import ScreennamePrompt from '@/components/ScreennamePrompt';
+
+const [showPrompt, setShowPrompt] = useState(false);
+
+<ScreennamePrompt
+  open={showPrompt}
+  onOpenChange={setShowPrompt}
+  onSuccess={(screenname) => {
+    console.log('Screenname set:', screenname);
+    // Continue with the action that triggered the prompt
+  }}
+  title="Choose Your Screenname" // optional
+  description="Custom description" // optional
+/>;
+```
+
+## Account Settings
+
+Users can set or update their screenname in Account Settings (`/account/user/edit`):
+
+1. Navigate to Account Settings
+2. Find the "Screenname" field
+3. Enter desired screenname (real-time availability check)
+4. Click "Update" to save
+
+The page includes:
+
+- Real-time availability checking with visual feedback
+- Format validation with error messages
+- Privacy disclosure explaining what information is public
+
+## Implementation Notes
+
+### Retroactive Changes
+
+All content references `authorId` (user's MongoDB `_id`), not the screenname itself. When a user changes their screenname:
+
+- The change is stored only on the user document
+- All `AuthorBadge` components fetch the current screenname from the API
+- No database migration or content updates required
+
+### Account Deletion
+
+When a user deletes their account:
+
+- The user document is hard-deleted (removed entirely)
+- Content authored by the user remains
+- `AuthorBadge` shows "Former Member" for orphaned authorIds
+
+### Lazy Creation Flow
+
+For features requiring attribution (articles, comments, etc.):
+
+1. Check if user has a screenname set
+2. If not, show `ScreennamePrompt` dialog
+3. After successful screenname creation, continue with original action
+
+```tsx
+const handleContribute = async () => {
+  const user = await getCurrentUser();
+
+  if (!user.screenname) {
+    setShowScreennamePrompt(true);
+    setPendingAction('contribute');
+    return;
+  }
+
+  // Continue with contribution
+  submitContribution();
+};
+```
+
+## Future Considerations
+
+- **User search by screenname**: Add endpoint to find users by screenname
+- **@mentions**: Support `@screenname` mentions in content
+- **Screenname history**: Track previous screennames for audit purposes
+- **Rate limiting**: Add cooldown or limit on screenname changes if abuse occurs

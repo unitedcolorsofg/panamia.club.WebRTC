@@ -4,6 +4,7 @@ import dbConnect from '@/lib/connectdb';
 import user from '@/lib/model/user';
 import BrevoApi from '@/lib/brevo_api';
 import { splitName } from '@/lib/standardized';
+import { validateScreennameFull } from '@/lib/screenname';
 
 const getUserByEmail = async (email: string) => {
   await dbConnect();
@@ -49,13 +50,24 @@ export async function POST(request: NextRequest) {
     ? (session.user?.email as string).toLowerCase()
     : null;
 
-  const { name, zip_code } = body;
+  const { name, zip_code, screenname } = body;
 
   if (!email) {
     return NextResponse.json(
       { error: 'Email value required' },
       { status: 200 }
     );
+  }
+
+  // Validate screenname if provided
+  if (screenname) {
+    const validation = await validateScreennameFull(screenname, email);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
+    }
   }
 
   const existingUser = await getUserByEmail(email);
@@ -66,6 +78,9 @@ export async function POST(request: NextRequest) {
     }
     if (zip_code) {
       existingUser.zip_code = zip_code;
+    }
+    if (screenname) {
+      existingUser.screenname = screenname.trim();
     }
     await existingUser.save();
     return NextResponse.json({ success: true, data: existingUser });

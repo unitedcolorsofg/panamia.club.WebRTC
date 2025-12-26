@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { getUserSession, saveUserSession } from '@/lib/user';
 import { UserInterface } from '@/lib/interfaces';
-import { Mail, AlertCircle } from 'lucide-react';
+import { Mail, AlertCircle, Check, X, Loader2 } from 'lucide-react';
 
 export default function UserEditPage() {
   const { data: session } = useSession();
@@ -40,6 +40,11 @@ export default function UserEditPage() {
   const [newEmail, setNewEmail] = useState('');
   const [isMigrating, setIsMigrating] = useState(false);
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
+  const [sessionScreenname, setSessionScreenname] = useState('');
+  const [screennameStatus, setScreennameStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+  >('idle');
+  const [screennameError, setScreennameError] = useState('');
 
   const setUserSession = async () => {
     const userSession = await getUserSession();
@@ -49,20 +54,85 @@ export default function UserEditPage() {
         userSession.zip_code == null ? '' : userSession.zip_code
       );
       setSessionName(userSession.name == null ? '' : userSession.name);
+      setSessionScreenname(
+        userSession.screenname == null ? '' : userSession.screenname
+      );
       setUserData(userSession);
     }
   };
 
+  const checkScreennameAvailability = useCallback(async (name: string) => {
+    if (!name || name.length < 3) {
+      setScreennameStatus('idle');
+      setScreennameError('');
+      return;
+    }
+
+    setScreennameStatus('checking');
+    setScreennameError('');
+
+    try {
+      const response = await fetch(
+        `/api/user/screenname/check?name=${encodeURIComponent(name)}`
+      );
+      const data = await response.json();
+
+      if (data.available) {
+        setScreennameStatus('available');
+        setScreennameError('');
+      } else {
+        setScreennameStatus(
+          data.error?.includes('taken') ? 'taken' : 'invalid'
+        );
+        setScreennameError(data.error || 'Invalid screenname');
+      }
+    } catch {
+      setScreennameStatus('idle');
+      setScreennameError('Could not check availability');
+    }
+  }, []);
+
+  // Debounce screenname check
+  useEffect(() => {
+    // Skip check if screenname matches the current saved value
+    if (sessionScreenname === userData?.screenname) {
+      setScreennameStatus('idle');
+      setScreennameError('');
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      checkScreennameAvailability(sessionScreenname);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [sessionScreenname, userData?.screenname, checkScreennameAvailability]);
+
   const updateUserSession = async () => {
+    // Validate screenname before saving if it changed
+    if (
+      sessionScreenname &&
+      sessionScreenname !== userData?.screenname &&
+      screennameStatus !== 'available'
+    ) {
+      setMessage('Please choose an available screenname before saving.');
+      return;
+    }
+
     setIsLoading(true);
     setMessage('');
     try {
       const response = await saveUserSession({
         name: sessionName,
         zip_code: sessionZipCode,
+        screenname: sessionScreenname || undefined,
       });
       console.log('updateUserSession:response', response);
       setMessage('Settings updated successfully!');
+      // Update userData to reflect saved screenname
+      if (response) {
+        setUserData(response);
+      }
     } catch (error) {
       setMessage('Failed to update settings. Please try again.');
       console.error(error);
@@ -185,7 +255,60 @@ export default function UserEditPage() {
                   onChange={(e) => setSessionName(e.target.value)}
                 />
                 <p className="text-sm text-gray-500">
-                  Used for contact emails and notices.
+                  Optional. Displayed publicly alongside your screenname on
+                  contributions.
+                </p>
+              </div>
+
+              {/* Screenname */}
+              <div className="space-y-2">
+                <Label htmlFor="screenname">Screenname</Label>
+                <div className="relative">
+                  <Input
+                    id="screenname"
+                    type="text"
+                    value={sessionScreenname}
+                    maxLength={24}
+                    autoComplete="username"
+                    onChange={(e) => setSessionScreenname(e.target.value)}
+                    className={
+                      screennameStatus === 'available'
+                        ? 'border-green-500 pr-10'
+                        : screennameStatus === 'taken' ||
+                            screennameStatus === 'invalid'
+                          ? 'border-red-500 pr-10'
+                          : 'pr-10'
+                    }
+                    placeholder="Choose a unique screenname"
+                  />
+                  <div className="absolute top-1/2 right-3 -translate-y-1/2">
+                    {screennameStatus === 'checking' && (
+                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                    )}
+                    {screennameStatus === 'available' && (
+                      <Check className="h-4 w-4 text-green-500" />
+                    )}
+                    {(screennameStatus === 'taken' ||
+                      screennameStatus === 'invalid') && (
+                      <X className="h-4 w-4 text-red-500" />
+                    )}
+                  </div>
+                </div>
+                {screennameError && (
+                  <p className="text-sm text-red-500">{screennameError}</p>
+                )}
+                <p className="text-sm text-gray-500">
+                  Required for contributions. 3-24 characters, letters, numbers,
+                  underscores, and hyphens only.
+                </p>
+              </div>
+
+              {/* Privacy Notice */}
+              <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  Your screenname and name (if provided) will be publicly
+                  displayed on your contributions. Your email address is private
+                  and will not be shown to other users.
                 </p>
               </div>
 

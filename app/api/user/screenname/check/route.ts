@@ -1,0 +1,33 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { validateScreenname, isScreennameAvailable } from '@/lib/screenname';
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const name = searchParams.get('name');
+
+  if (!name) {
+    return NextResponse.json(
+      { available: false, error: 'Screenname parameter is required' },
+      { status: 400 }
+    );
+  }
+
+  // First validate format
+  const formatResult = validateScreenname(name);
+  if (!formatResult.valid) {
+    return NextResponse.json({
+      available: false,
+      error: formatResult.error,
+    });
+  }
+
+  // Check database availability
+  const available = await isScreennameAvailable(name);
+
+  return NextResponse.json({
+    available,
+    error: available ? undefined : 'This screenname is already taken',
+  });
+}
+
+export const maxDuration = 5;

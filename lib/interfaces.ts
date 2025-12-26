@@ -145,6 +145,7 @@ export interface UserStatusInterface {
 export interface UserInterface {
   _id: String;
   email: String;
+  screenname?: String;
   name?: String;
   status?: UserStatusInterface;
   zip_code?: String;

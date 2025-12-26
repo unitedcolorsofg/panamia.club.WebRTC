@@ -8,6 +8,7 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
+    screenname: String,
     name: String,
     status: {
       role: String,
@@ -20,6 +21,16 @@ const userSchema = new Schema(
   },
   {
     timestamps: true,
+  }
+);
+
+// Case-insensitive unique index for screenname
+userSchema.index(
+  { screenname: 1 },
+  {
+    unique: true,
+    sparse: true,
+    collation: { locale: 'en', strength: 2 },
   }
 );
 
