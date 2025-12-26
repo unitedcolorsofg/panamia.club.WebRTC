@@ -3,31 +3,31 @@
 echo ""
 echo "🔍 Checking Playwright test coverage for modified pages..."
 
-# Get staged app pages  
-STAGED_PAGES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^app/.*page\.tsx$')
+# Get staged app pages (|| true prevents exit on no matches with set -e)
+STAGED_PAGES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^app/.*page\.tsx$' || true)
 
 if [ -n "$STAGED_PAGES" ]; then
-  HAS_WARNINGS=0
-  
-  echo "$STAGED_PAGES" | while IFS= read -r page; do
+  # Collect uncovered pages first (avoids subshell variable issue)
+  UNCOVERED_PAGES=""
+
+  for page in $STAGED_PAGES; do
     # Extract route
     ROUTE=$(echo "$page" | sed 's|^app||' | sed 's|/page\.tsx$||')
     [ -z "$ROUTE" ] && ROUTE="/"
-    
-    # Check for test coverage
-    if ! grep -rq "goto(['\"\`]$ROUTE['\"\`])" tests/ 2>/dev/null && \
-       ! grep -rq "goto(['\"\`].*$ROUTE" tests/ 2>/dev/null; then
-      if [ "$HAS_WARNINGS" = "0" ]; then
-        echo ""
-        echo "⚠️  WARNING: Modified pages may not have Playwright test coverage:"
-        echo ""
-        HAS_WARNINGS=1
-      fi
-      echo "  📄 $page → $ROUTE"
+
+    # Check for test coverage (use || true to handle set -e)
+    FOUND_EXACT=$(grep -rq "goto(['\"\`]$ROUTE['\"\`])" tests/ 2>/dev/null && echo "1" || true)
+    FOUND_PARTIAL=$(grep -rq "goto(['\"\`].*$ROUTE" tests/ 2>/dev/null && echo "1" || true)
+    if [ -z "$FOUND_EXACT" ] && [ -z "$FOUND_PARTIAL" ]; then
+      UNCOVERED_PAGES="$UNCOVERED_PAGES
+  📄 $page → $ROUTE"
     fi
   done
-  
-  if [ "$HAS_WARNINGS" = "1" ]; then
+
+  if [ -n "$UNCOVERED_PAGES" ]; then
+    echo ""
+    echo "⚠️  WARNING: Modified pages may not have Playwright test coverage:"
+    echo "$UNCOVERED_PAGES"
     echo ""
     echo "💡 Consider adding test cases to tests/e2e/"
     echo "   Run 'npm run test:ui' to create tests interactively"
