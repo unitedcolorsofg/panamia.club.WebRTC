@@ -97,3 +97,74 @@ test.describe('Navigation Links', () => {
     await expect(nav).toBeVisible();
   });
 });
+
+test.describe('Custom Sign-In Page', () => {
+  test('signin page loads successfully', async ({ page }) => {
+    await page.goto('/signin');
+    await expect(page).toHaveURL(/signin/);
+    await expect(page).not.toHaveTitle(/404/);
+  });
+
+  test('signin page displays Pana MIA branding', async ({ page }) => {
+    await page.goto('/signin', { waitUntil: 'domcontentloaded' });
+
+    // Check for welcome message
+    const welcomeText = page.getByText('Welcome to Pana MIA');
+    await expect(welcomeText).toBeVisible();
+  });
+
+  test('signin page has OAuth provider buttons', async ({ page }) => {
+    await page.goto('/signin', { waitUntil: 'domcontentloaded' });
+
+    // Check for OAuth buttons (they may be disabled if not configured)
+    const googleButton = page.getByRole('button', {
+      name: /Continue with Google/i,
+    });
+    const appleButton = page.getByRole('button', {
+      name: /Continue with Apple/i,
+    });
+
+    await expect(googleButton).toBeVisible();
+    await expect(appleButton).toBeVisible();
+  });
+
+  test('signin page has email sign-in option', async ({ page }) => {
+    await page.goto('/signin', { waitUntil: 'domcontentloaded' });
+
+    // Check for email sign-in toggle button
+    const emailButton = page.getByRole('button', {
+      name: 'Sign in with email',
+    });
+    await expect(emailButton).toBeVisible();
+
+    // The email form is toggled via React state - verify the toggle exists
+    // Full form interaction requires authenticated test environment
+  });
+
+  test('signin page has terms link', async ({ page }) => {
+    await page.goto('/signin', { waitUntil: 'domcontentloaded' });
+
+    // Find terms link (may have trailing slash)
+    const termsLink = page
+      .locator('a[href^="/doc/terms-and-conditions"]')
+      .first();
+    await expect(termsLink).toBeVisible();
+  });
+
+  test('signin page has contact help link', async ({ page }) => {
+    await page.goto('/signin', { waitUntil: 'domcontentloaded' });
+
+    // Find the "Contact us" link in the signin card (not footer)
+    const contactLink = page.locator('.max-w-md a[href^="/form/contact-us"]');
+    await expect(contactLink).toBeVisible();
+  });
+
+  test('signin page preserves callback URL', async ({ page }) => {
+    // Navigate to signin with a callback URL
+    await page.goto('/signin?callbackUrl=/mentoring/discover');
+
+    // Page should load without errors
+    await expect(page).not.toHaveTitle(/404/);
+    await expect(page).toHaveURL(/callbackUrl/);
+  });
+});

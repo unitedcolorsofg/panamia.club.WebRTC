@@ -46,15 +46,15 @@ test.describe('Mentoring Features', () => {
   test('mentor discovery page requires authentication', async ({ page }) => {
     await page.goto('/mentoring/discover');
 
-    // Should redirect to signin for unauthenticated users
-    await expect(page).toHaveURL(/\/api\/auth\/signin/);
+    // Should redirect to custom signin page for unauthenticated users
+    await expect(page).toHaveURL(/\/signin/);
   });
 
   test('mentor schedule page requires authentication', async ({ page }) => {
     await page.goto('/mentoring/schedule');
 
-    // Should redirect to signin for unauthenticated users
-    await expect(page).toHaveURL(/\/api\/auth\/signin/);
+    // Should redirect to custom signin page for unauthenticated users
+    await expect(page).toHaveURL(/\/signin/);
   });
 
   test('mentor profile page loads or redirects', async ({ page }) => {
